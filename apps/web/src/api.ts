@@ -104,8 +104,6 @@ export const api = {
     read<{ participants: AdminTeam[] }>(
       client.api.admin.teams.generate.post({ count }),
     ),
-  regenerateCode: (id: string) =>
-    read(client.api.admin.participants({ id }).code.post()),
   teamAnswers: (id: string) =>
     read<TeamAnswers>(client.api.admin.participants({ id }).answers.get()),
   openFinal: () =>

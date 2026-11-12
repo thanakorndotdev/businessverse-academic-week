@@ -1193,6 +1193,83 @@ button {
   letter-spacing: 0.08em;
   color: #768471;
 }
+.mission-route {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 20px;
+}
+.mission-route > div {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 11px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mission-route > svg {
+  flex: none;
+  align-self: center;
+  color: #8a9a8f;
+}
+.mission-route small {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+.mission-route strong {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  min-width: 0;
+}
+.mission-route strong > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mission-route em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.route-now {
+  background: var(--navy);
+  color: #fff;
+}
+.route-now small,
+.route-now em {
+  color: var(--gold);
+}
+.route-next {
+  border: 1px dashed #b9c5ba;
+  color: var(--ink);
+}
+.route-next small,
+.route-next em {
+  color: var(--muted);
+}
+@media (max-width: 540px) {
+  .mission-route {
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .mission-route > div {
+    padding: 9px 12px 10px;
+  }
+  .mission-route strong {
+    font-size: 14px;
+    gap: 6px;
+  }
+  .mission-route > svg {
+    width: 14px;
+  }
+}
 .quiz-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;

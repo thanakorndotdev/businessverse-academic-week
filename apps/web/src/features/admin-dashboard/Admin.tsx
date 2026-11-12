@@ -546,10 +546,6 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
       cache.invalidateQueries({ queryKey: ["overview"] });
     },
   });
-  const code = useMutation({
-    mutationFn: api.regenerateCode,
-    onSuccess: () => cache.invalidateQueries({ queryKey: ["participants"] }),
-  });
   const target = useMutation({
     mutationFn: ({ id, objectiveId }: { id: string; objectiveId: Objective }) =>
       api.objective(id, objectiveId),
@@ -645,17 +641,13 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
                   onTarget={(objectiveId) =>
                     target.mutate({ id: p.id, objectiveId })
                   }
-                  onCode={() => code.mutate(p.id)}
-                  codeBusy={code.isPending && code.variables === p.id}
                 />
               ))}
             </tbody>
           </table>
         </div>
       )}
-      {(target.error || code.error) && (
-        <ErrorState error={target.error ?? code.error} />
-      )}
+      {target.error && <ErrorState error={target.error} />}
     </section>
   );
 }
@@ -665,16 +657,12 @@ function TeamRow({
   onToggle,
   locked,
   onTarget,
-  onCode,
-  codeBusy,
 }: {
   team: AdminTeam;
   expanded: boolean;
   onToggle: () => void;
   locked: boolean;
   onTarget: (o: Objective) => void;
-  onCode: () => void;
-  codeBusy: boolean;
 }) {
   const t = useText();
   return (
@@ -713,15 +701,6 @@ function TeamRow({
           <small> / 24</small>
         </td>
         <td className="row-actions">
-          <button
-            className="icon-text"
-            disabled={codeBusy}
-            onClick={onCode}
-            title={t("ออกรหัสใหม่ (รหัสเดิมใช้ไม่ได้)", "Issue a new code (old one stops working)")}
-          >
-            <KeyRound size={14} />
-            {t("รหัสใหม่", "New code")}
-          </button>
           <button
             className="icon-text"
             aria-expanded={expanded}

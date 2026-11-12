@@ -71,6 +71,7 @@ export async function teamLogin(teamNumber: number, code: string) {
 /**
  * Ensures teams 1..count exist and each has an access code. Existing teams,
  * their names, targets and answers are kept; only missing codes are issued.
+ * Codes are printed and fixed to each team's seat, so nothing ever reissues one.
  */
 export async function generateTeams(count: number) {
   await db.transaction(async (tx) => {
@@ -102,16 +103,6 @@ export async function generateTeams(count: number) {
     );
   });
   return adminTeams();
-}
-
-export async function regenerateCode(id: string) {
-  const [team] = await db
-    .update(users)
-    .set({ accessCode: newAccessCode() })
-    .where(and(eq(users.id, id), eq(users.role, "attendee")))
-    .returning();
-  if (!team) throw new ApiError(404, "ไม่พบทีม");
-  return { id: team.id, accessCode: team.accessCode };
 }
 
 export async function renameTeam(user: User, name: string) {

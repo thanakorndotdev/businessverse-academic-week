@@ -12,7 +12,8 @@ import {
 import { api } from "../../api";
 import { useText } from "../../store";
 import { ErrorState } from "../../components/Common";
-export function Auth() {
+/** `home`: rendered as the signed-out landing page, so there is no hub to go back to. */
+export function Auth({ home = false }: { home?: boolean }) {
   const t = useText();
   const [params] = useSearchParams();
   const requested = params.get("next") ?? "/";
@@ -39,10 +40,17 @@ export function Auth() {
             teamNumber: Number(form.get("teamNumber")),
             code: String(form.get("code")).trim().toUpperCase(),
           }),
-    onSuccess: ({ user }) => {
+    onSuccess: async ({ user }) => {
       cache.clear();
       cache.setQueryData(["user"], user);
-      navigate(user.role === "admin" ? "/admin" : next.startsWith("/admin") ? "/" : next);
+      if (user.role === "admin") return navigate("/admin");
+      if (next !== "/" && !next.startsWith("/admin")) return navigate(next);
+      // No specific destination requested: drop the team straight into its next mission.
+      const passport = await cache
+        .fetchQuery({ queryKey: ["passport"], queryFn: api.passport })
+        .catch(() => null);
+      const mission = passport?.departments.find((d) => d.answered < 3);
+      navigate(mission ? `/play/${mission.slug}` : "/");
     },
   });
   return (
@@ -70,10 +78,12 @@ export function Auth() {
         />
       </section>
       <section className="auth-form">
-        <Link to="/" className="back-link">
-          <ArrowLeft size={16} />
-          {t("กลับสู่สนามธุรกิจ", "Back to the hub")}
-        </Link>
+        {!home && (
+          <Link to="/" className="back-link">
+            <ArrowLeft size={16} />
+            {t("กลับสู่สนามธุรกิจ", "Back to the hub")}
+          </Link>
+        )}
         <h2>
           {admin
             ? t("เข้าสู่ระบบผู้จัดงาน", "Organizer sign in")

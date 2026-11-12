@@ -1,5 +1,4 @@
 import { FinalBanner } from "../final-round/Final";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -20,10 +19,11 @@ import {
   ChevronRight,
   Fingerprint,
 } from "lucide-react";
-import { api, type Department, type Passport } from "../../api";
+import { api, type Passport } from "../../api";
 import { useUser } from "../../hooks";
 import { useText } from "../../store";
-import { Loading, ErrorState } from "../../components/Common";
+import { Loading } from "../../components/Common";
+import { Auth } from "./Auth";
 export const departmentIcons = [
   Users,
   Megaphone,
@@ -87,12 +87,7 @@ function Orbit() {
 }
 export function Hub() {
   const t = useText(),
-    { data: user } = useUser();
-  const [filter, setFilter] = useState("all");
-  const departments = useQuery({
-    queryKey: ["departments"],
-    queryFn: api.departments,
-  });
+    { data: user, isPending: checking } = useUser();
   const passport = useQuery({
     queryKey: ["passport"],
     queryFn: api.passport,
@@ -103,14 +98,9 @@ export function Hub() {
   const completed =
     progress?.departments.filter((d) => d.answered === 3).length ?? 0;
   const next = progress?.departments.find((d) => d.answered < 3);
-  const rows =
-    departments.data?.departments.filter(
-      (d) =>
-        filter === "all" ||
-        (filter === "live" && d.isQ1Unlocked) ||
-        (filter === "completed" &&
-          progress?.departments.find((p) => p.id === d.id)?.answered === 3),
-    ) ?? [];
+  if (checking) return <Loading />;
+  // Signed-out visitors get the team login straight away: pick a team, enter the code.
+  if (!user) return <Auth home />;
   return (
     <>
       <div className="page-heading">
@@ -144,12 +134,10 @@ export function Hub() {
             )}
           </p>
           <Link
-            to={user ? (next ? `/play/${next.slug}` : "/passport") : "/join"}
+            to={next ? `/play/${next.slug}` : "/passport"}
             className="button gold"
           >
-            {user
-              ? t("ไปยังภารกิจถัดไป", "Continue your mission")
-              : t("เข้าสู่สนามธุรกิจ", "Enter the challenge")}
+            {t("ไปยังภารกิจถัดไป", "Continue your mission")}
             <ArrowUpRight size={19} />
           </Link>
           <div className="hero-detail">
@@ -170,15 +158,10 @@ export function Hub() {
           <div>
             <h3>{t("พาสปอร์ตธุรกิจ", "Your business passport")}</h3>
             <p>
-              {user
-                ? t(
-                    "ทุกสาขาที่ผ่าน คืออีกทักษะที่คุณได้เรียนรู้",
-                    "Every completed discipline is a new skill unlocked.",
-                  )
-                : t(
-                    "เข้าสู่ระบบเพื่อเริ่มสะสมตราประทับ",
-                    "Sign in to start collecting your stamps.",
-                  )}
+              {t(
+                "ทุกสาขาที่ผ่าน คืออีกทักษะที่คุณได้เรียนรู้",
+                "Every completed discipline is a new skill unlocked.",
+              )}
             </p>
           </div>
         </div>
@@ -202,76 +185,6 @@ export function Hub() {
         </Link>
       </section>
       {progress && <ObjectiveStrip progress={progress} />}
-      <section className="departments-section">
-        <div className="section-heading">
-          <div>
-            <h2>{t("เลือกภารกิจ เริ่มสร้างทักษะ", "Explore the disciplines")}</h2>
-            <p>
-              {t(
-                "แต่ละสาขามี 3 โจทย์ ทำตามลำดับและรอสัญญาณเริ่มจากผู้จัดงาน",
-                "Three decisions per discipline. Follow the sequence and wait for the organizer’s start.",
-              )}
-            </p>
-          </div>
-          <div className="filters" aria-label="Filter disciplines">
-            {[
-              ["all", t("ทั้งหมด", "All")],
-              ["live", t("เปิดแล้ว", "Open")],
-              ["completed", t("สำเร็จ", "Completed")],
-            ].map(([value, label]) => (
-              <button
-                key={value}
-                className={filter === value ? "selected" : ""}
-                onClick={() => setFilter(value)}
-                aria-pressed={filter === value}
-              >
-                {label}
-                {value === "all" && <span>8</span>}
-              </button>
-            ))}
-          </div>
-        </div>
-        {departments.isPending ? (
-          <Loading cards />
-        ) : departments.error ? (
-          <ErrorState
-            error={departments.error}
-            retry={() => departments.refetch()}
-          />
-        ) : rows.length ? (
-          <div className="department-grid">
-            {rows.map((d) => (
-              <DepartmentCard
-                key={d.id}
-                department={d}
-                answered={
-                  progress?.departments.find((p) => p.id === d.id)?.answered ??
-                  0
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="empty-inline">
-            <Flag size={24} />
-            <p>
-              {filter === "live"
-                ? t(
-                    "ยังไม่มีสาขาเปิด รอสัญญาณเริ่มจากผู้จัดงาน",
-                    "No disciplines are open yet. The organizer will start the first mission.",
-                  )
-                : t(
-                    "ยังไม่มีตราประทับ เริ่มภารกิจแรกของคุณได้เลย",
-                    "Your stamps will appear here after completing a discipline.",
-                  )}
-            </p>
-            <button className="text-button" onClick={() => setFilter("all")}>
-              {t("ดูทุกสาขา", "View all disciplines")}
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        )}
-      </section>
       <section className="guide-teaser">
         <div>
           <span className="guide-symbol">
@@ -316,68 +229,6 @@ export function Hub() {
 }
 function BookIcon() {
   return <Flag size={25} />;
-}
-export function DepartmentCard({
-  department: d,
-  answered,
-}: {
-  department: Department;
-  answered: number;
-}) {
-  const t = useText();
-  const Icon = departmentIcons[d.displayOrder - 1] ?? Landmark;
-  const done = answered === 3;
-  return (
-    <Link
-      to={`/departments/${d.slug}`}
-      className={`department-card tone-${d.displayOrder}${done ? " complete" : ""}`}
-    >
-      <div className="department-art">
-        <div className="art-lines" />
-        <Icon size={39} strokeWidth={1.4} />
-        <span className="discipline-number">
-          {String(d.displayOrder).padStart(2, "0")}
-        </span>
-        <span
-          className={`status-badge ${done ? "done" : d.isQ1Unlocked ? "live" : "waiting"}`}
-        >
-          {done ? (
-            <Check size={12} />
-          ) : d.isQ1Unlocked ? (
-            <i />
-          ) : (
-            <LockKeyhole size={11} />
-          )}
-          {done
-            ? t("สำเร็จ", "Completed")
-            : d.isQ1Unlocked
-              ? t("เปิดภารกิจแล้ว", "Open")
-              : t("รอเริ่มภารกิจ", "Waiting to start")}
-        </span>
-      </div>
-      <div className="department-body">
-        <h3>
-          {t(
-            d.nameTh,
-            d.name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
-          )}
-        </h3>
-        <span className="department-english">{d.name}</span>
-        <p>{d.description}</p>
-        <div className="department-bottom">
-          <span className="mini-steps">
-            {[0, 1, 2].map((n) => (
-              <i key={n} className={answered > n ? "filled" : ""} />
-            ))}
-            <span>
-              {answered} / 3 {t("ข้อ", "decisions")}
-            </span>
-          </span>
-          <ArrowUpRight size={19} />
-        </div>
-      </div>
-    </Link>
-  );
 }
 export function ObjectiveStrip({ progress }: { progress: Passport }) {
   const t = useText();

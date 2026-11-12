@@ -160,6 +160,7 @@ export function Quiz() {
           {String(s.department.displayOrder).padStart(2, "0")} / 08
         </span>
       </div>
+      <MissionRoute order={s.department.displayOrder} />
       <Steps answered={s.answered} />
       <div className="quiz-layout">
         <aside className="mission-aside">
@@ -493,6 +494,48 @@ export function Quiz() {
             )
           )}
         </section>
+      </div>
+    </div>
+  );
+}
+/** Where the team is in the eight-discipline sequence: this mission, then the next one. */
+function MissionRoute({ order }: { order: number }) {
+  const t = useText();
+  const { data } = useQuery({
+    queryKey: ["departments"],
+    queryFn: api.departments,
+  });
+  const list = data?.departments ?? [];
+  const current = list.find((d) => d.displayOrder === order);
+  if (!current) return null;
+  const next = list.find((d) => d.displayOrder === order + 1);
+  const number = (n: number) => String(n).padStart(2, "0");
+  return (
+    <div
+      className="mission-route"
+      role="group"
+      aria-label={t("ลำดับสาขา", "Discipline sequence")}
+    >
+      <div className="route-now">
+        <small>{t("ตอนนี้", "Now")}</small>
+        <strong>
+          <em>{number(current.displayOrder)}</em>
+          <span>{t(current.nameTh, current.name)}</span>
+        </strong>
+      </div>
+      <ArrowRight size={18} aria-hidden="true" />
+      <div className="route-next">
+        <small>{t("สาขาถัดไป", "Up next")}</small>
+        <strong>
+          {next ? (
+            <>
+              <em>{number(next.displayOrder)}</em>
+              <span>{t(next.nameTh, next.name)}</span>
+            </>
+          ) : (
+            <span>{t("สาขาสุดท้าย · สรุปผลในพาสปอร์ต", "Last one · Passport summary")}</span>
+          )}
+        </strong>
       </div>
     </div>
   );

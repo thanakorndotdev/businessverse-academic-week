@@ -174,7 +174,7 @@ export function Shell() {
                     <LogOut size={16} />
                   </button>
                 </div>
-              ) : (
+              ) : pathname === "/" || pathname === "/join" ? null : (
                 <Link className="top-login" to="/join">
                   {t("เข้าสู่ระบบ", "Sign in")}
                   <ArrowRight size={16} />

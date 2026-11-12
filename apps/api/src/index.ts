@@ -21,7 +21,6 @@ import {
   teamLogin,
   teamNumbers,
   generateTeams,
-  regenerateCode,
   renameTeam,
   adminTeams,
   teamAnswers,
@@ -346,14 +345,6 @@ export const app = new Elysia()
       return { participants };
     },
     { body: t.Object({ count: t.Integer({ minimum: 1, maximum: 300 }) }) },
-  )
-  .post(
-    "/api/admin/participants/:id/code",
-    async ({ user, params }) => {
-      requireAdmin(user);
-      return regenerateCode(params.id);
-    },
-    { params: t.Object({ id: t.String({ format: "uuid" }) }) },
   )
   .get(
     "/api/admin/participants/:id/answers",
