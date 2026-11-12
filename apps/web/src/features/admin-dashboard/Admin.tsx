@@ -11,7 +11,6 @@ import {
   Trophy,
   Users,
   X,
-  Check,
   Target,
   Flag,
   RotateCcw,
@@ -491,25 +490,8 @@ function PhasePanel({
     mutationFn: api.resetCompetition,
     onSuccess: done,
   });
-  const steps: { id: Phase; label: string }[] = [
-    { id: "qualifier", label: t("รอบคัดเลือก · 80", "Qualifier · 80") },
-    { id: "final", label: t("Final Top 10 · 20", "Final Top 10 · 20") },
-    { id: "closed", label: t("ปิดเกม", "Closed") },
-  ];
-  const at = steps.findIndex((s) => s.id === phase);
   return (
     <section className="phase-panel">
-      <ol className="phase-steps">
-        {steps.map((s, i) => (
-          <li
-            key={s.id}
-            className={i < at ? "done" : i === at ? "current" : ""}
-          >
-            <span>{i < at ? <Check size={13} /> : i + 1}</span>
-            {s.label}
-          </li>
-        ))}
-      </ol>
       <div className="phase-actions">
         {phase === "qualifier" && (
           <button
