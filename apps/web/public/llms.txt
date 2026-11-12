@@ -1,0 +1,22 @@
+# Businessverse Academic Week
+UTCC Business School — คณะบริหารธุรกิจ มหาวิทยาลัยหอการค้าไทย
+
+An educational business simulation covering eight disciplines and 24 sequential decisions. Participants receive one persistent strategic objective, complete three decisions per discipline, and earn passport stamps. Organizers open each discipline's first question. Rankings are organizer-only.
+
+## Disciplines
+- Management: strategy and resource allocation
+- Marketing: STP and value propositions
+- E-Sport: community participation and brand fit
+- Digital Marketing: funnels, attribution and channel budgets
+- Logistics: total cost, service and supply chain resilience
+- International Business: market entry and country risk
+- Digital & Innovation: technology capabilities and cybersecurity
+- Finance: cash flow, investment and liquidity
+
+## Strategic objectives
+Growth Company: Sales > 145.
+Premium Brand: Brand > 120 and Risk < 55.
+Cost Leader: Cash > 200,000 and Operations > 100.
+Customer Champion: Customer > 130.
+
+No event date or venue has been confirmed in this application.

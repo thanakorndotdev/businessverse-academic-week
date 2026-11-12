@@ -1,0 +1,1594 @@
+{
+  "objectives": [
+    {
+      "id": "growth",
+      "title": "GROWTH COMPANY",
+      "target": "Sales > 145",
+      "description": "เร่งยอดขายและการขยายตลาด"
+    },
+    {
+      "id": "premium",
+      "title": "PREMIUM BRAND",
+      "target": "Brand > 120 และ Risk < 55",
+      "description": "สร้างคุณค่าแบรนด์พร้อมควบคุมความเสี่ยง"
+    },
+    {
+      "id": "cost",
+      "title": "COST LEADER",
+      "target": "Cash > 200,000 และ Operations > 100",
+      "description": "รักษาสภาพคล่องและประสิทธิภาพ"
+    },
+    {
+      "id": "customer",
+      "title": "CUSTOMER CHAMPION",
+      "target": "Customer > 130",
+      "description": "สร้างประสบการณ์และฐานลูกค้าระยะยาว"
+    }
+  ],
+  "initialState": {
+    "cash": 1200000,
+    "sales": 50,
+    "customer": 50,
+    "brand": 50,
+    "operations": 50,
+    "risk": 5,
+    "innovation": false,
+    "crm": false,
+    "premium": false,
+    "analytics": false,
+    "cyber": false
+  },
+  "departments": [
+    {
+      "discipline": "01 · MANAGEMENT",
+      "learning": "Strategic choice · Trade-off · Resource allocation",
+      "questions": [
+        {
+          "type": "check",
+          "title": "READ THE STRATEGY",
+          "scenario": "บริษัทมีทรัพยากรจำกัด ข้อใดอธิบายคำว่า ‘กลยุทธ์’ ได้ดีที่สุด",
+          "options": [
+            {
+              "id": "direction",
+              "title": "การเลือกทิศทางและสิ่งที่จะไม่ทำ",
+              "detail": "เชื่อมเป้าหมายกับการจัดสรรทรัพยากร",
+              "knowledge": 5
+            },
+            {
+              "id": "activity",
+              "title": "ทำกิจกรรมให้มากที่สุด",
+              "detail": "เพิ่มงานทุกด้านพร้อมกัน",
+              "knowledge": 1
+            },
+            {
+              "id": "copy",
+              "title": "ทำตามผู้นำตลาด",
+              "detail": "ลดความไม่แน่นอนด้วยการเลียนแบบ",
+              "knowledge": 0
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "SET THE DIRECTION",
+          "scenario": "บริษัทเริ่มต้นด้วยทุน 1,200,000 Coins เลือกทิศทางหลักที่จะเป็นเข็มทิศของการตัดสินใจต่อจากนี้",
+          "options": [
+            {
+              "id": "mass",
+              "title": "Mass Growth",
+              "detail": "เข้าถึงตลาดกว้างและเร่งยอดขาย",
+              "effect": {
+                "cash": -100000,
+                "sales": 15,
+                "customer": 12,
+                "risk": 6
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 1,
+                "cost": 2,
+                "customer": 4
+              }
+            },
+            {
+              "id": "premium",
+              "title": "Premium Focus",
+              "detail": "สร้างประสบการณ์และคุณค่าระดับสูง",
+              "effect": {
+                "cash": -170000,
+                "brand": 22,
+                "customer": 6,
+                "risk": 5,
+                "premium": true
+              },
+              "fit": {
+                "growth": 1,
+                "premium": 5,
+                "cost": 0,
+                "customer": 3
+              }
+            },
+            {
+              "id": "innovation",
+              "title": "Innovation First",
+              "detail": "ลงทุนความสามารถก่อนเร่งขยาย",
+              "effect": {
+                "cash": -210000,
+                "operations": 18,
+                "customer": 8,
+                "innovation": true
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 3,
+                "cost": 3,
+                "customer": 4
+              }
+            },
+            {
+              "id": "lowcost",
+              "title": "Cost Leadership",
+              "detail": "ออกแบบธุรกิจให้คล่องตัวและต้นทุนต่ำ",
+              "effect": {
+                "cash": -70000,
+                "operations": 15,
+                "brand": -4
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 0,
+                "cost": 5,
+                "customer": 2
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · PRICE WAR",
+          "scenario": "คู่แข่งรายใหญ่ลดราคาลง 25% ทันที ทีมจะตอบสนองอย่างไรโดยยังรักษาทิศทางของบริษัท",
+          "options": [
+            {
+              "id": "match",
+              "title": "Match the Price",
+              "detail": "ลดราคาตามเพื่อปกป้องส่วนแบ่งตลาด",
+              "effect": {
+                "cash": -90000,
+                "sales": 12,
+                "brand": -8,
+                "risk": 12
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 0,
+                "cost": 1,
+                "customer": 2
+              }
+            },
+            {
+              "id": "value",
+              "title": "Defend the Value",
+              "detail": "คงราคาและเพิ่มบริการที่ลูกค้ารับรู้ได้",
+              "effect": {
+                "cash": -60000,
+                "customer": 10,
+                "brand": 14,
+                "risk": 3
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 2,
+                "customer": 5
+              }
+            },
+            {
+              "id": "leanresponse",
+              "title": "Remove Waste",
+              "detail": "ลดต้นทุนหลังบ้านเพื่อรักษาราคา",
+              "effect": {
+                "cash": 30000,
+                "operations": 12,
+                "customer": -3
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 2,
+                "cost": 5,
+                "customer": 2
+              }
+            },
+            {
+              "id": "niche",
+              "title": "Focus on a Niche",
+              "detail": "ย้ายทรัพยากรไปยังกลุ่มที่ตอบโจทย์ที่สุด",
+              "effect": {
+                "cash": -40000,
+                "sales": 4,
+                "customer": 12,
+                "brand": 8
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 4,
+                "cost": 3,
+                "customer": 5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "02 · MARKETING",
+      "learning": "STP · Value proposition · Marketing mix",
+      "questions": [
+        {
+          "type": "check",
+          "title": "FIND THE CUSTOMER",
+          "scenario": "ก่อนออกแบบข้อเสนอทางการตลาด ทีมควรตอบคำถามใดให้ชัดเจนที่สุด",
+          "options": [
+            {
+              "id": "target",
+              "title": "เรากำลังแก้ปัญหาให้ลูกค้ากลุ่มใด",
+              "detail": "กำหนด Target และ Customer Need",
+              "knowledge": 5
+            },
+            {
+              "id": "trend",
+              "title": "คู่แข่งกำลังใช้สีอะไร",
+              "detail": "ดูรูปแบบการสื่อสารของตลาด",
+              "knowledge": 1
+            },
+            {
+              "id": "volume",
+              "title": "ผลิตให้ได้มากที่สุดอย่างไร",
+              "detail": "เน้นปริมาณก่อนรู้ความต้องการ",
+              "knowledge": 0
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "DESIGN THE OFFER",
+          "scenario": "ผลสำรวจพบว่าลูกค้าต้องการทั้งความคุ้มค่า ความต่าง และความสะดวก แต่งบพัฒนามีจำกัด",
+          "options": [
+            {
+              "id": "penetration",
+              "title": "Penetration Bundle",
+              "detail": "แพ็กเริ่มต้นเพื่อเร่งทดลองใช้",
+              "effect": {
+                "cash": -90000,
+                "sales": 18,
+                "customer": 13,
+                "brand": -3,
+                "risk": 5
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 1,
+                "cost": 2,
+                "customer": 4
+              }
+            },
+            {
+              "id": "signature",
+              "title": "Signature Experience",
+              "detail": "สินค้าและบริการพรีเมียมที่แตกต่าง",
+              "effect": {
+                "cash": -150000,
+                "sales": 8,
+                "customer": 8,
+                "brand": 22
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 0,
+                "customer": 3
+              }
+            },
+            {
+              "id": "personalized",
+              "title": "Personalized Offer",
+              "detail": "แบ่งเซกเมนต์และปรับข้อเสนอ",
+              "effect": {
+                "cash": -130000,
+                "sales": 12,
+                "customer": 20,
+                "brand": 9,
+                "crm": true
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 4,
+                "cost": 3,
+                "customer": 5
+              }
+            },
+            {
+              "id": "lean",
+              "title": "Lean Essential",
+              "detail": "คงเฉพาะฟังก์ชันที่ลูกค้าใช้จริง",
+              "effect": {
+                "cash": -50000,
+                "sales": 7,
+                "operations": 12,
+                "brand": -3
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 0,
+                "cost": 5,
+                "customer": 2
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · NEGATIVE REVIEWS",
+          "scenario": "หลังเปิดตัว ลูกค้ากลุ่มแรกให้คะแนนเพียง 2.8/5 และบอกว่าคุณค่าไม่ตรงกับราคาที่จ่าย",
+          "options": [
+            {
+              "id": "refund",
+              "title": "Refund and Recover",
+              "detail": "คืนเงินและติดต่อแก้ปัญหารายบุคคล",
+              "effect": {
+                "cash": -80000,
+                "customer": 15,
+                "brand": 8,
+                "risk": -4
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 4,
+                "cost": 2,
+                "customer": 5
+              }
+            },
+            {
+              "id": "redesign",
+              "title": "Redesign the Offer",
+              "detail": "ปรับคุณสมบัติและทดสอบใหม่กับลูกค้า",
+              "effect": {
+                "cash": -120000,
+                "customer": 12,
+                "brand": 12,
+                "operations": 4
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 3,
+                "customer": 5
+              }
+            },
+            {
+              "id": "discount",
+              "title": "Flash Discount",
+              "detail": "ใช้ส่วนลดเร่งยอดและลดแรงต่อต้าน",
+              "effect": {
+                "cash": -50000,
+                "sales": 14,
+                "brand": -8,
+                "risk": 8
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 0,
+                "cost": 3,
+                "customer": 2
+              }
+            },
+            {
+              "id": "listen",
+              "title": "Customer Listening Sprint",
+              "detail": "เก็บ Insight ก่อนเลือกสิ่งที่ต้องแก้",
+              "effect": {
+                "cash": -30000,
+                "customer": 10,
+                "operations": 6,
+                "risk": -2
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 3,
+                "cost": 5,
+                "customer": 5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "03 · E-SPORT",
+      "learning": "E-sport ecosystem · Fan engagement · Community value",
+      "questions": [
+        {
+          "type": "check",
+          "title": "UNDERSTAND THE ARENA",
+          "scenario": "แบรนด์จะสร้างความสัมพันธ์กับชุมชน E-sport อย่างยั่งยืนได้จากข้อใด",
+          "options": [
+            {
+              "id": "participate",
+              "title": "สร้างการมีส่วนร่วมและคุณค่าให้ชุมชน",
+              "detail": "มี Participation, Identity และ Continuity",
+              "knowledge": 5
+            },
+            {
+              "id": "logo",
+              "title": "ซื้อพื้นที่โลโก้ให้มากที่สุด",
+              "detail": "เพิ่มการมองเห็นเพียงระยะสั้น",
+              "knowledge": 1
+            },
+            {
+              "id": "celebrity",
+              "title": "เลือกผู้ติดตามมากที่สุดเสมอ",
+              "detail": "เน้น Reach โดยไม่ตรวจสอบ Community Fit",
+              "knowledge": 0
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "WIN THE ARENA",
+          "scenario": "แบรนด์ต้องเข้าหา Gen Z แต่ชุมชนต่อต้านแบรนด์ที่เข้ามาขายของอย่างเดียว",
+          "options": [
+            {
+              "id": "tournament",
+              "title": "Campus Tournament",
+              "detail": "การแข่งขันขนาดใหญ่เพื่อสร้าง Reach",
+              "effect": {
+                "cash": -150000,
+                "sales": 14,
+                "customer": 17,
+                "brand": 15,
+                "risk": 11
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 3,
+                "cost": 1,
+                "customer": 4
+              }
+            },
+            {
+              "id": "creator",
+              "title": "Creator Squad",
+              "detail": "ร่วมงานกับเกมครีเอเตอร์",
+              "effect": {
+                "cash": -120000,
+                "sales": 18,
+                "customer": 11,
+                "brand": 12,
+                "risk": 16
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 4,
+                "cost": 2,
+                "customer": 3
+              }
+            },
+            {
+              "id": "community",
+              "title": "Community League",
+              "detail": "สร้างลีกระยะยาวกับชุมชน",
+              "effect": {
+                "cash": -100000,
+                "sales": 7,
+                "customer": 22,
+                "brand": 18,
+                "risk": 4
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 4,
+                "customer": 5
+              }
+            },
+            {
+              "id": "gamified",
+              "title": "Gamified Loyalty",
+              "detail": "เชื่อมภารกิจกับระบบสมาชิก",
+              "effect": {
+                "cash": -80000,
+                "sales": 10,
+                "customer": 20,
+                "brand": 8,
+                "crm": true
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 3,
+                "cost": 5,
+                "customer": 5
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · CREATOR BACKLASH",
+          "scenario": "ครีเอเตอร์หลักมีประเด็นดราม่าและชุมชนเรียกร้องให้แบรนด์แสดงจุดยืนภายใน 2 ชั่วโมง",
+          "options": [
+            {
+              "id": "pause",
+              "title": "Pause and Investigate",
+              "detail": "หยุดสื่อ ตรวจสอบข้อเท็จจริง และกำหนดเวลาอัปเดต",
+              "effect": {
+                "sales": -3,
+                "brand": 10,
+                "risk": -8
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 5,
+                "customer": 5
+              }
+            },
+            {
+              "id": "terminate",
+              "title": "Terminate Immediately",
+              "detail": "ยุติสัญญาทันทีเพื่อแยกแบรนด์ออกจากเหตุการณ์",
+              "effect": {
+                "cash": -70000,
+                "brand": 8,
+                "risk": -10
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 4,
+                "cost": 2,
+                "customer": 3
+              }
+            },
+            {
+              "id": "defend",
+              "title": "Defend the Creator",
+              "detail": "สนับสนุนครีเอเตอร์ก่อนข้อเท็จจริงครบ",
+              "effect": {
+                "sales": 8,
+                "brand": -12,
+                "risk": 18
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 0,
+                "cost": 1,
+                "customer": 1
+              }
+            },
+            {
+              "id": "communityvoice",
+              "title": "Community Council",
+              "detail": "เชิญตัวแทนชุมชนร่วมออกแบบทางออก",
+              "effect": {
+                "cash": -30000,
+                "customer": 14,
+                "brand": 12,
+                "risk": -5
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 4,
+                "customer": 5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "04 · DIGITAL MARKETING",
+      "learning": "Customer journey · Media funnel · Measurement",
+      "questions": [
+        {
+          "type": "check",
+          "title": "MATCH THE FUNNEL",
+          "scenario": "หากเป้าหมายคือเพิ่มการซื้อซ้ำ ช่องทางใดตอบโจทย์โดยตรงที่สุด",
+          "options": [
+            {
+              "id": "crmcheck",
+              "title": "CRM Retargeting",
+              "detail": "สื่อสารกับลูกค้าเดิมจากข้อมูลที่ได้รับอนุญาต",
+              "knowledge": 5
+            },
+            {
+              "id": "reachcheck",
+              "title": "Mass Reach Video",
+              "detail": "เพิ่ม Awareness ในกลุ่มใหม่",
+              "knowledge": 2
+            },
+            {
+              "id": "outdoorcheck",
+              "title": "Outdoor Billboard",
+              "detail": "สร้างการมองเห็นในวงกว้าง",
+              "knowledge": 1
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "GROW WITH DATA",
+          "scenario": "เลือก Digital Media Mix ได้หลายช่องทาง ภายใต้งบไม่เกิน 400,000 Coins",
+          "multi": true,
+          "budget": 400000,
+          "options": [
+            {
+              "id": "shortvideo",
+              "title": "Short-video Ads",
+              "detail": "สร้าง Reach และการทดลอง",
+              "effect": {
+                "cash": -100000,
+                "sales": 12,
+                "customer": 13,
+                "brand": 6,
+                "risk": 5
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 2,
+                "cost": 3,
+                "customer": 4
+              },
+              "cost": 100000
+            },
+            {
+              "id": "influencer",
+              "title": "Influencer Partnership",
+              "detail": "เร่งความน่าเชื่อถือและ Conversion",
+              "effect": {
+                "cash": -130000,
+                "sales": 18,
+                "customer": 9,
+                "brand": 13,
+                "risk": 15
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 4,
+                "cost": 2,
+                "customer": 3
+              },
+              "cost": 130000
+            },
+            {
+              "id": "search",
+              "title": "Search and Commerce",
+              "detail": "จับความต้องการซื้อและวัดผลชัด",
+              "effect": {
+                "cash": -110000,
+                "sales": 16,
+                "customer": 7,
+                "operations": 4
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 3,
+                "cost": 4,
+                "customer": 3
+              },
+              "cost": 110000
+            },
+            {
+              "id": "crm",
+              "title": "CRM Retargeting",
+              "detail": "เพิ่มการซื้อซ้ำและลดความผันผวน",
+              "effect": {
+                "cash": -70000,
+                "sales": 6,
+                "customer": 14,
+                "brand": 4,
+                "risk": -6,
+                "crm": true
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 4,
+                "cost": 5,
+                "customer": 5
+              },
+              "cost": 70000
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · MEDIA COST SURGE",
+          "scenario": "ค่าโฆษณาเพิ่มขึ้น 40% และ Conversion ลดลง ทีมต้องปรับแผนภายในวันนี้",
+          "options": [
+            {
+              "id": "shiftcrm",
+              "title": "Shift to CRM",
+              "detail": "ย้ายงบไปดูแลลูกค้าเดิม",
+              "effect": {
+                "cash": -30000,
+                "sales": 4,
+                "customer": 13,
+                "risk": -3,
+                "crm": true
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 4,
+                "cost": 5,
+                "customer": 5
+              }
+            },
+            {
+              "id": "creative",
+              "title": "Creative Testing",
+              "detail": "ทดสอบข้อความและชิ้นงานหลายแบบ",
+              "effect": {
+                "cash": -60000,
+                "sales": 10,
+                "brand": 7,
+                "risk": 4
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 4,
+                "cost": 3,
+                "customer": 3
+              }
+            },
+            {
+              "id": "cutmedia",
+              "title": "Cut Media Spend",
+              "detail": "หยุดงบส่วนใหญ่เพื่อรักษาเงินสด",
+              "effect": {
+                "sales": -8,
+                "cash": 50000,
+                "risk": -2
+              },
+              "fit": {
+                "growth": 1,
+                "premium": 2,
+                "cost": 5,
+                "customer": 1
+              }
+            },
+            {
+              "id": "analytics",
+              "title": "Attribution Sprint",
+              "detail": "ตรวจ Journey และย้ายงบตาม Conversion",
+              "effect": {
+                "cash": -50000,
+                "sales": 7,
+                "operations": 6,
+                "analytics": true
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 4,
+                "cost": 5,
+                "customer": 4
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "05 · DIGITAL & INNOVATION",
+      "learning": "Digital transformation · AI · Automation · Data governance",
+      "questions": [
+        {
+          "type": "check",
+          "title": "BUILD THE CAPABILITY",
+          "scenario": "เหตุใดการซื้อเทคโนโลยีเพียงอย่างเดียวจึงยังไม่ใช่ Digital Transformation",
+          "options": [
+            {
+              "id": "capability",
+              "title": "ต้องเปลี่ยนกระบวนการ ข้อมูล และความสามารถของคนด้วย",
+              "detail": "เทคโนโลยีต้องเชื่อมกับ Operating Model",
+              "knowledge": 5
+            },
+            {
+              "id": "price",
+              "title": "เพราะเทคโนโลยีราคาแพง",
+              "detail": "มองเพียงต้นทุนการซื้อ",
+              "knowledge": 1
+            },
+            {
+              "id": "trendtech",
+              "title": "เพราะต้องรอให้คู่แข่งใช้ก่อน",
+              "detail": "ให้ผู้อื่นเป็นผู้ทดลองแทน",
+              "knowledge": 0
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "BUILD THE NEXT ENGINE",
+          "scenario": "ยอดขายโต แต่ระบบหลังบ้านและข้อมูลแยกส่วน เลือกการลงทุนที่สร้างความสามารถระยะยาว",
+          "options": [
+            {
+              "id": "ai",
+              "title": "AI Customer Service",
+              "detail": "ตอบเร็วขึ้นพร้อม Human Escalation",
+              "effect": {
+                "cash": -110000,
+                "customer": 16,
+                "operations": 9,
+                "risk": 4
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 4,
+                "cost": 2,
+                "customer": 5
+              }
+            },
+            {
+              "id": "automation",
+              "title": "Operations Automation",
+              "detail": "ลดข้อผิดพลาดและเพิ่มกำลังรองรับ",
+              "effect": {
+                "cash": -160000,
+                "operations": 26,
+                "risk": -3
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 3,
+                "cost": 5,
+                "customer": 3
+              }
+            },
+            {
+              "id": "analytics",
+              "title": "Customer Analytics",
+              "detail": "รวมข้อมูลเพื่อคาดการณ์และตัดสินใจ",
+              "effect": {
+                "cash": -140000,
+                "sales": 8,
+                "customer": 8,
+                "analytics": true
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 5,
+                "cost": 4,
+                "customer": 5
+              }
+            },
+            {
+              "id": "cyber",
+              "title": "Cyber and Data Foundation",
+              "detail": "สร้างความปลอดภัยและธรรมาภิบาลข้อมูล",
+              "effect": {
+                "cash": -90000,
+                "operations": 8,
+                "risk": -15,
+                "cyber": true
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 4,
+                "customer": 3
+              }
+            },
+            {
+              "id": "none",
+              "title": "Delay Investment",
+              "detail": "รักษาเงินสดแต่ไม่เพิ่มความสามารถ",
+              "effect": {
+                "operations": -5,
+                "risk": 5
+              },
+              "fit": {
+                "growth": 0,
+                "premium": 0,
+                "cost": 2,
+                "customer": 0
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · SYSTEM BREACH",
+          "scenario": "ตรวจพบการเข้าถึงข้อมูลลูกค้าผิดปกติ ระบบหลักยังทำงานได้ แต่ยังไม่ทราบขอบเขตความเสียหาย",
+          "options": [
+            {
+              "id": "contain",
+              "title": "Contain and Notify",
+              "detail": "แยกระบบ ตรวจสอบ และสื่อสารตามข้อเท็จจริง",
+              "effect": {
+                "cash": -80000,
+                "customer": 6,
+                "brand": 10,
+                "risk": -14,
+                "cyber": true
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 4,
+                "customer": 5
+              }
+            },
+            {
+              "id": "shutdown",
+              "title": "Full Shutdown",
+              "detail": "ปิดทุกระบบทันทีจนกว่าจะมั่นใจ",
+              "effect": {
+                "cash": -120000,
+                "sales": -8,
+                "operations": -5,
+                "risk": -18
+              },
+              "fit": {
+                "growth": 1,
+                "premium": 4,
+                "cost": 2,
+                "customer": 3
+              }
+            },
+            {
+              "id": "silent",
+              "title": "Fix Quietly",
+              "detail": "แก้หลังบ้านโดยไม่แจ้งลูกค้า",
+              "effect": {
+                "cash": -30000,
+                "brand": -12,
+                "risk": 16
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 0,
+                "cost": 4,
+                "customer": 0
+              }
+            },
+            {
+              "id": "monitor",
+              "title": "Monitor First",
+              "detail": "ติดตามเพิ่มก่อนดำเนินการ",
+              "effect": {
+                "operations": 2,
+                "risk": 10
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 1,
+                "cost": 5,
+                "customer": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "06 · INTERNATIONAL BUSINESS",
+      "learning": "Market attractiveness · Entry mode · Country risk",
+      "questions": [
+        {
+          "type": "check",
+          "title": "ASSESS THE MARKET",
+          "scenario": "ตลาดต่างประเทศที่มีขนาดใหญ่ที่สุดควรถูกเลือกเสมอหรือไม่",
+          "options": [
+            {
+              "id": "fitmarket",
+              "title": "ไม่เสมอ ต้องดู Market Attractiveness และ Company Fit",
+              "detail": "รวมต้นทุน การควบคุม วัฒนธรรม และความเสี่ยง",
+              "knowledge": 5
+            },
+            {
+              "id": "largest",
+              "title": "ใช่ เพราะยอดขายที่เป็นไปได้สูงสุด",
+              "detail": "ใช้ขนาดตลาดเป็นเกณฑ์เดียว",
+              "knowledge": 0
+            },
+            {
+              "id": "closest",
+              "title": "ควรเลือกประเทศใกล้ที่สุดเสมอ",
+              "detail": "ใช้ระยะทางเป็นเกณฑ์เดียว",
+              "knowledge": 1
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "CHOOSE THE MARKET",
+          "scenario": "เศรษฐกิจไทยชะลอตัว บริษัทต้องเลือกตลาดและ Entry Mode ที่เหมาะกับความสามารถ",
+          "options": [
+            {
+              "id": "vietnam",
+              "title": "Vietnam via Distributor",
+              "detail": "โตเร็ว ลงทุนน้อยแต่ควบคุมน้อย",
+              "effect": {
+                "cash": -110000,
+                "sales": 18,
+                "customer": 6,
+                "risk": 9
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 2,
+                "cost": 3,
+                "customer": 4
+              }
+            },
+            {
+              "id": "japan",
+              "title": "Japan Premium Niche",
+              "detail": "มาตรฐานสูงและต้องปรับสินค้า",
+              "effect": {
+                "cash": -190000,
+                "sales": 10,
+                "brand": 22,
+                "risk": 9
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 1,
+                "customer": 2
+              }
+            },
+            {
+              "id": "malaysia",
+              "title": "Malaysia Local Partner",
+              "detail": "เริ่มเร็วและสมดุลความเสี่ยง",
+              "effect": {
+                "cash": -90000,
+                "sales": 12,
+                "customer": 10,
+                "operations": 5,
+                "risk": 5
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 3,
+                "cost": 5,
+                "customer": 5
+              }
+            },
+            {
+              "id": "china",
+              "title": "China Cross-border",
+              "detail": "โอกาสสูงพร้อมการแข่งขันรุนแรง",
+              "effect": {
+                "cash": -220000,
+                "sales": 29,
+                "brand": 8,
+                "risk": 24
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 2,
+                "cost": 0,
+                "customer": 2
+              }
+            },
+            {
+              "id": "domestic",
+              "title": "Strengthen Thailand",
+              "detail": "รักษาฐานเดิมและสภาพคล่อง",
+              "effect": {
+                "customer": 7,
+                "operations": 6,
+                "risk": -3
+              },
+              "fit": {
+                "growth": 1,
+                "premium": 3,
+                "cost": 4,
+                "customer": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · REGULATION SHIFT",
+          "scenario": "ประเทศเป้าหมายออกกฎฉลากและข้อมูลลูกค้าใหม่ก่อนเปิดตลาด 30 วัน",
+          "options": [
+            {
+              "id": "comply",
+              "title": "Adapt and Comply",
+              "detail": "ปรับสินค้าและระบบให้ผ่านกฎก่อนเปิด",
+              "effect": {
+                "cash": -110000,
+                "brand": 10,
+                "operations": 6,
+                "risk": -10
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 3,
+                "customer": 4
+              }
+            },
+            {
+              "id": "partner",
+              "title": "Use a Local Partner",
+              "detail": "ให้พันธมิตรท้องถิ่นช่วยรับมือกฎ",
+              "effect": {
+                "cash": -70000,
+                "sales": 6,
+                "operations": 7,
+                "risk": -5
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 3,
+                "cost": 5,
+                "customer": 5
+              }
+            },
+            {
+              "id": "delay",
+              "title": "Delay Entry",
+              "detail": "เลื่อนเปิดตลาดเพื่อรักษาเงินสด",
+              "effect": {
+                "sales": -5,
+                "cash": 20000,
+                "risk": -8
+              },
+              "fit": {
+                "growth": 1,
+                "premium": 3,
+                "cost": 5,
+                "customer": 2
+              }
+            },
+            {
+              "id": "bypass",
+              "title": "Launch as Planned",
+              "detail": "เปิดตามแผนและแก้ภายหลัง",
+              "effect": {
+                "sales": 12,
+                "brand": -10,
+                "risk": 22
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 0,
+                "cost": 1,
+                "customer": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "07 · LOGISTICS",
+      "learning": "Supply chain resilience · Service level · Total cost",
+      "questions": [
+        {
+          "type": "check",
+          "title": "SEE THE TOTAL COST",
+          "scenario": "เมื่อสินค้าไม่พอขาย ต้นทุนใดมักถูกมองข้ามมากที่สุด",
+          "options": [
+            {
+              "id": "lost",
+              "title": "ยอดขายและความเชื่อมั่นที่สูญเสียไป",
+              "detail": "รวม Opportunity Cost และ Service Failure",
+              "knowledge": 5
+            },
+            {
+              "id": "freight",
+              "title": "ค่าขนส่งที่จ่ายจริง",
+              "detail": "เป็นต้นทุนที่เห็นได้ชัด",
+              "knowledge": 2
+            },
+            {
+              "id": "rent",
+              "title": "ค่าเช่าคลังตามสัญญา",
+              "detail": "เป็นต้นทุนคงที่เดิม",
+              "knowledge": 1
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "PROTECT THE FLOW",
+          "scenario": "Supplier หลักส่งช้า 14 วัน ขณะยอดสั่งซื้อพุ่ง 30%",
+          "options": [
+            {
+              "id": "air",
+              "title": "Emergency Air Freight",
+              "detail": "รักษาสินค้าพร้อมขายด้วยต้นทุนสูง",
+              "effect": {
+                "cash": -170000,
+                "sales": 16,
+                "customer": 7,
+                "operations": 3
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 4,
+                "cost": 1,
+                "customer": 5
+              }
+            },
+            {
+              "id": "wait",
+              "title": "Accept Backorders",
+              "detail": "ประหยัดเงินสดแต่ลูกค้ารอนาน",
+              "effect": {
+                "sales": -15,
+                "customer": -14,
+                "brand": -6
+              },
+              "fit": {
+                "growth": 0,
+                "premium": 0,
+                "cost": 3,
+                "customer": 0
+              }
+            },
+            {
+              "id": "dual",
+              "title": "Dual Local Supplier",
+              "detail": "กระจายความเสี่ยงด้วยแหล่งใหม่",
+              "effect": {
+                "cash": -110000,
+                "operations": 15,
+                "risk": 8,
+                "brand": -2
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 2,
+                "cost": 4,
+                "customer": 3
+              }
+            },
+            {
+              "id": "forecast",
+              "title": "Demand Control Tower",
+              "detail": "คาดการณ์และจัดสรรสต็อกตามมูลค่าลูกค้า",
+              "effect": {
+                "cash": -70000,
+                "sales": 7,
+                "customer": 8,
+                "operations": 17,
+                "risk": -4,
+                "analytics": true
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 5,
+                "cost": 5,
+                "customer": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · QUALITY FAILURE",
+          "scenario": "สินค้าจาก Supplier สำรองมีข้อบกพร่อง 8% และเริ่มมีลูกค้าร้องเรียน",
+          "options": [
+            {
+              "id": "recall",
+              "title": "Targeted Recall",
+              "detail": "เรียกคืนล็อตเสี่ยงและชดเชยลูกค้า",
+              "effect": {
+                "cash": -100000,
+                "customer": 10,
+                "brand": 12,
+                "risk": -8
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 5,
+                "cost": 2,
+                "customer": 5
+              }
+            },
+            {
+              "id": "inspect",
+              "title": "100% Quality Inspection",
+              "detail": "เพิ่มจุดตรวจทุกชิ้นก่อนส่ง",
+              "effect": {
+                "cash": -70000,
+                "operations": 10,
+                "risk": -10
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 4,
+                "cost": 4,
+                "customer": 4
+              }
+            },
+            {
+              "id": "continue",
+              "title": "Continue Shipping",
+              "detail": "ส่งต่อเพื่อรักษายอดและแก้เฉพาะผู้ร้องเรียน",
+              "effect": {
+                "sales": 9,
+                "customer": -12,
+                "brand": -13,
+                "risk": 18
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 0,
+                "cost": 2,
+                "customer": 0
+              }
+            },
+            {
+              "id": "supplierfix",
+              "title": "Joint Supplier Recovery",
+              "detail": "ส่งทีมไปแก้ต้นเหตุที่โรงงาน",
+              "effect": {
+                "cash": -80000,
+                "operations": 16,
+                "brand": 6,
+                "risk": -5
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 4,
+                "cost": 5,
+                "customer": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "discipline": "08 · FINANCE",
+      "learning": "Cash flow · Risk and return · Scenario planning",
+      "questions": [
+        {
+          "type": "check",
+          "title": "PROTECT THE CASH",
+          "scenario": "ข้อใดอธิบายความแตกต่างระหว่างกำไรกับเงินสดได้ถูกต้องที่สุด",
+          "options": [
+            {
+              "id": "timing",
+              "title": "ธุรกิจมีกำไรได้แต่ยังขาดเงินสดจากจังหวะรับและจ่าย",
+              "detail": "พิจารณา Working Capital และ Cash Timing",
+              "knowledge": 5
+            },
+            {
+              "id": "same",
+              "title": "กำไรและเงินสดเป็นจำนวนเดียวกันเสมอ",
+              "detail": "ไม่คำนึงถึงลูกหนี้ สต็อก และเจ้าหนี้",
+              "knowledge": 0
+            },
+            {
+              "id": "salesonly",
+              "title": "ยอดขายสูงแปลว่าเงินสดสูงเสมอ",
+              "detail": "ไม่คำนึงถึงเครดิตและต้นทุน",
+              "knowledge": 1
+            }
+          ]
+        },
+        {
+          "type": "strategy",
+          "title": "FUND THE FUTURE",
+          "scenario": "ดอกเบี้ยสูงขึ้นและกำลังซื้อชะลอ บริษัทต้องจัดสรรเงินก้อนสุดท้ายก่อนเกิดความผันผวน",
+          "options": [
+            {
+              "id": "reserve",
+              "title": "Build Cash Reserve",
+              "detail": "เก็บสภาพคล่องและลดความเสี่ยง",
+              "effect": {
+                "risk": -10
+              },
+              "fit": {
+                "growth": 2,
+                "premium": 4,
+                "cost": 5,
+                "customer": 3
+              }
+            },
+            {
+              "id": "growthfund",
+              "title": "Finance Growth",
+              "detail": "ใช้เงินเร่งยอดก่อนตลาดชะลอ",
+              "effect": {
+                "cash": -120000,
+                "sales": 20,
+                "risk": 15
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 2,
+                "cost": 0,
+                "customer": 3
+              }
+            },
+            {
+              "id": "hedge",
+              "title": "Hedge and Protect Margin",
+              "detail": "ป้องกันต้นทุนและรักษาประสิทธิภาพ",
+              "effect": {
+                "cash": -70000,
+                "operations": 12,
+                "risk": -12
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 5,
+                "cost": 5,
+                "customer": 4
+              }
+            },
+            {
+              "id": "reprice",
+              "title": "Selective Price Increase",
+              "detail": "ขึ้นราคาเฉพาะกลุ่มเพื่อรักษาเงินสด",
+              "effect": {
+                "cash": 70000,
+                "sales": -8,
+                "customer": -7,
+                "brand": 6,
+                "risk": 5
+              },
+              "fit": {
+                "growth": 3,
+                "premium": 4,
+                "cost": 4,
+                "customer": 1
+              }
+            }
+          ]
+        },
+        {
+          "type": "crisis",
+          "title": "CRISIS · LIQUIDITY SQUEEZE",
+          "scenario": "ลูกค้ารายใหญ่ขอขยายเครดิตจาก 30 เป็น 90 วัน ขณะที่ Supplier ต้องการให้จ่ายเร็วขึ้น",
+          "options": [
+            {
+              "id": "creditline",
+              "title": "Secure a Credit Line",
+              "detail": "รักษาการเติบโตด้วยวงเงินระยะสั้น",
+              "effect": {
+                "cash": 120000,
+                "risk": 12
+              },
+              "fit": {
+                "growth": 5,
+                "premium": 2,
+                "cost": 1,
+                "customer": 4
+              }
+            },
+            {
+              "id": "negotiate",
+              "title": "Renegotiate Both Sides",
+              "detail": "ปรับเงื่อนไขลูกค้าและ Supplier พร้อมกัน",
+              "effect": {
+                "cash": 50000,
+                "operations": 8,
+                "risk": -4
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 4,
+                "cost": 5,
+                "customer": 5
+              }
+            },
+            {
+              "id": "factor",
+              "title": "Selective Factoring",
+              "detail": "ขายลูกหนี้บางส่วนเพื่อรับเงินเร็ว",
+              "effect": {
+                "cash": 90000,
+                "sales": -2,
+                "risk": 3
+              },
+              "fit": {
+                "growth": 4,
+                "premium": 3,
+                "cost": 4,
+                "customer": 3
+              }
+            },
+            {
+              "id": "decline",
+              "title": "Decline the Customer",
+              "detail": "ปฏิเสธเครดิตและยอมเสียยอดบางส่วน",
+              "effect": {
+                "sales": -13,
+                "cash": 20000,
+                "risk": -8
+              },
+              "fit": {
+                "growth": 0,
+                "premium": 3,
+                "cost": 5,
+                "customer": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalOptions": [
+    {
+      "id": "protect",
+      "title": "Protect the Core",
+      "detail": "รักษาเงินสด ลดความเสี่ยง และโฟกัสลูกค้าหลัก",
+      "effect": {
+        "cash": 50000,
+        "sales": -6,
+        "customer": 8,
+        "operations": 8,
+        "risk": -12
+      },
+      "fit": {
+        "growth": 12,
+        "premium": 17,
+        "cost": 19,
+        "customer": 17
+      }
+    },
+    {
+      "id": "selective",
+      "title": "Selective Growth",
+      "detail": "ลงทุนเฉพาะตลาดและช่องทางที่ข้อมูลยืนยันว่าคุ้มค่า",
+      "effect": {
+        "cash": -90000,
+        "sales": 16,
+        "customer": 6,
+        "analytics": true,
+        "risk": 6
+      },
+      "fit": {
+        "growth": 19,
+        "premium": 14,
+        "cost": 13,
+        "customer": 15
+      }
+    },
+    {
+      "id": "premiumshield",
+      "title": "Premium Value Shield",
+      "detail": "รักษาราคา เพิ่มบริการ และปกป้องความเชื่อมั่น",
+      "effect": {
+        "cash": -70000,
+        "customer": 10,
+        "brand": 16,
+        "risk": -4
+      },
+      "fit": {
+        "growth": 13,
+        "premium": 19,
+        "cost": 12,
+        "customer": 18
+      }
+    },
+    {
+      "id": "transform",
+      "title": "Transform the Model",
+      "detail": "ลงทุนระบบอัตโนมัติ ข้อมูล และรูปแบบบริการใหม่",
+      "effect": {
+        "cash": -130000,
+        "sales": 8,
+        "operations": 18,
+        "innovation": true,
+        "risk": 5
+      },
+      "fit": {
+        "growth": 17,
+        "premium": 15,
+        "cost": 16,
+        "customer": 16
+      }
+    }
+  ]
+}

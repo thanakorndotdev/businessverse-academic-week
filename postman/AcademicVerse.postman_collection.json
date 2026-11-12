@@ -1,0 +1,724 @@
+{
+  "info": {
+    "name": "AcademicVerse — game rules and access control",
+    "description": "Run ONLY against a fresh disposable businessverse_test service. This suite creates team 1 with an access code and opens the first gate. Set organizer credentials in your local environment; never commit them.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Database connected',()=>pm.expect(pm.response.json().db).to.eql('connected')); "
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{admin_email}}\",\"password\":\"{{admin_password}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.environment.set('admin_token',pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer creates team 1 with an access code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/teams/generate",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"count\":1}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const t=pm.response.json().participants.find(p=>p.teamNumber===1);pm.environment.set('team_code',t.accessCode);pm.test('Code issued',()=>pm.expect(t.accessCode).to.match(/^[A-Z2-9]{6}$/));pm.test('Target assigned',()=>pm.expect(t.objective.id).to.be.oneOf(['growth','premium','cost','customer']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team signs in with number and code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/auth/team",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"teamNumber\":1,\"code\":\"{{team_code}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const b=pm.response.json(); pm.environment.set('player_token',b.token); pm.environment.set('player_id',b.user.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player forbidden from rankings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/leaderboard"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List departments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const d=pm.response.json().departments[0];pm.environment.set('department_id',d.id);pm.test('Eight disciplines',()=>pm.expect(pm.response.json().departments.length).to.eql(8));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read organizer question bank",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/questions"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const qs=pm.response.json().questions.filter(q=>q.departmentId===pm.environment.get('department_id')).sort((a,b)=>a.questionNumber-b.questionNumber);qs.forEach((q,i)=>{pm.environment.set('q'+(i+1),q.id);pm.environment.set('choice'+(i+1),q.options[0].id)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player cannot read answer bank",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/questions"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locked lobby reveals no question",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/state"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Q1 locked',()=>pm.expect(pm.response.json().status).to.eql('locked'));pm.test('No answer keys',()=>pm.expect(pm.response.json().question).to.eql(null));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject Q1 before organizer start",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q1}}\",\"optionIds\":[\"{{choice1}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player cannot open gate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/start-q1",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer opens Q1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/start-q1",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject skipping Q1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q2}}\",\"optionIds\":[\"{{choice2}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit Q1 and auto-advance Q2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q1}}\",\"optionIds\":[\"{{choice1}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Auto-advanced to Q2',()=>pm.expect(pm.response.json().state.unlockedQuestion).to.eql(2));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate submission rejected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q1}}\",\"optionIds\":[\"{{choice1}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409',()=>pm.response.to.have.status(409));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Target locked after first answer",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/participants/{{player_id}}/objective",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"objectiveId\":\"customer\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409',()=>pm.response.to.have.status(409));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit Q2 and auto-advance Q3",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q2}}\",\"optionIds\":[\"{{choice2}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Auto-advanced to Q3',()=>pm.expect(pm.response.json().state.unlockedQuestion).to.eql(3));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit Q3 and earn stamp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\":\"{{q3}}\",\"optionIds\":[\"{{choice3}}\"],\"reason\":\"postman reason\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Discipline complete',()=>pm.expect(pm.response.json().state.status).to.eql('completed')); "
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Own passport has no rankings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/passport"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const p=pm.response.json();pm.test('Three saved decisions',()=>pm.expect(p.answered).to.eql(3));pm.test('Rankings absent',()=>{pm.expect(p.rank).to.eql(undefined);pm.expect(p.leaderboard).to.eql(undefined);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin standings mark Top 4",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/leaderboard"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Top 10 flags are correct',()=>pm.response.json().leaderboard.forEach(r=>pm.expect(r.isTop).to.eql(r.rank<=10))); "
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,697 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T07:42:34.413902+00:00",
+  "title": "Design System: Businessverse Academic Week",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "oklch(15% 0.00661 106.52)",
+          "oklch(26% 0.00661 106.52)",
+          "oklch(38% 0.00661 106.52)",
+          "oklch(49% 0.00661 106.52)",
+          "oklch(61% 0.00661 106.52)",
+          "oklch(72% 0.00661 106.52)",
+          "oklch(84% 0.00661 106.52)",
+          "oklch(95% 0.00661 106.52)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.00000 0.00)",
+          "oklch(26% 0.00000 0.00)",
+          "oklch(38% 0.00000 0.00)",
+          "oklch(49% 0.00000 0.00)",
+          "oklch(61% 0.00000 0.00)",
+          "oklch(72% 0.00000 0.00)",
+          "oklch(84% 0.00000 0.00)",
+          "oklch(95% 0.00000 0.00)"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Marine Ink",
+        "tonalRamp": [
+          "oklch(15% 0.04075 224.46)",
+          "oklch(26% 0.04075 224.46)",
+          "oklch(38% 0.04075 224.46)",
+          "oklch(49% 0.04075 224.46)",
+          "oklch(61% 0.04075 224.46)",
+          "oklch(72% 0.04075 224.46)",
+          "oklch(84% 0.04075 224.46)",
+          "oklch(95% 0.04075 224.46)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.02177 217.42)",
+          "oklch(26% 0.02177 217.42)",
+          "oklch(38% 0.02177 217.42)",
+          "oklch(49% 0.02177 217.42)",
+          "oklch(61% 0.02177 217.42)",
+          "oklch(72% 0.02177 217.42)",
+          "oklch(84% 0.02177 217.42)",
+          "oklch(95% 0.02177 217.42)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15% 0.01031 145.49)",
+          "oklch(26% 0.01031 145.49)",
+          "oklch(38% 0.01031 145.49)",
+          "oklch(49% 0.01031 145.49)",
+          "oklch(61% 0.01031 145.49)",
+          "oklch(72% 0.01031 145.49)",
+          "oklch(84% 0.01031 145.49)",
+          "oklch(95% 0.01031 145.49)"
+        ]
+      },
+      "navy-deep": {
+        "role": "primary",
+        "displayName": "Navy Deep",
+        "tonalRamp": [
+          "oklch(15% 0.03677 225.73)",
+          "oklch(26% 0.03677 225.73)",
+          "oklch(38% 0.03677 225.73)",
+          "oklch(49% 0.03677 225.73)",
+          "oklch(61% 0.03677 225.73)",
+          "oklch(72% 0.03677 225.73)",
+          "oklch(84% 0.03677 225.73)",
+          "oklch(95% 0.03677 225.73)"
+        ]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "UBS Gold",
+        "tonalRamp": [
+          "oklch(15% 0.12780 87.20)",
+          "oklch(26% 0.12780 87.20)",
+          "oklch(38% 0.12780 87.20)",
+          "oklch(49% 0.12780 87.20)",
+          "oklch(61% 0.12780 87.20)",
+          "oklch(72% 0.12780 87.20)",
+          "oklch(84% 0.12780 87.20)",
+          "oklch(95% 0.12780 87.20)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Primary Hover",
+        "tonalRamp": [
+          "oklch(15% 0.04355 213.75)",
+          "oklch(26% 0.04355 213.75)",
+          "oklch(38% 0.04355 213.75)",
+          "oklch(49% 0.04355 213.75)",
+          "oklch(61% 0.04355 213.75)",
+          "oklch(72% 0.04355 213.75)",
+          "oklch(84% 0.04355 213.75)",
+          "oklch(95% 0.04355 213.75)"
+        ]
+      },
+      "gold-hover": {
+        "role": "primary",
+        "displayName": "Gold Hover",
+        "tonalRamp": [
+          "oklch(15% 0.11411 86.96)",
+          "oklch(26% 0.11411 86.96)",
+          "oklch(38% 0.11411 86.96)",
+          "oklch(49% 0.11411 86.96)",
+          "oklch(61% 0.11411 86.96)",
+          "oklch(72% 0.11411 86.96)",
+          "oklch(84% 0.11411 86.96)",
+          "oklch(95% 0.11411 86.96)"
+        ]
+      },
+      "secondary-bg": {
+        "role": "secondary",
+        "displayName": "Secondary Bg",
+        "tonalRamp": [
+          "oklch(15% 0.01237 137.78)",
+          "oklch(26% 0.01237 137.78)",
+          "oklch(38% 0.01237 137.78)",
+          "oklch(49% 0.01237 137.78)",
+          "oklch(61% 0.01237 137.78)",
+          "oklch(72% 0.01237 137.78)",
+          "oklch(84% 0.01237 137.78)",
+          "oklch(95% 0.01237 137.78)"
+        ]
+      },
+      "secondary-ink": {
+        "role": "secondary",
+        "displayName": "Secondary Ink",
+        "tonalRamp": [
+          "oklch(15% 0.04304 172.04)",
+          "oklch(26% 0.04304 172.04)",
+          "oklch(38% 0.04304 172.04)",
+          "oklch(49% 0.04304 172.04)",
+          "oklch(61% 0.04304 172.04)",
+          "oklch(72% 0.04304 172.04)",
+          "oklch(84% 0.04304 172.04)",
+          "oklch(95% 0.04304 172.04)"
+        ]
+      },
+      "target-surface": {
+        "role": "secondary",
+        "displayName": "Target Surface",
+        "tonalRamp": [
+          "oklch(15% 0.01886 116.59)",
+          "oklch(26% 0.01886 116.59)",
+          "oklch(38% 0.01886 116.59)",
+          "oklch(49% 0.01886 116.59)",
+          "oklch(61% 0.01886 116.59)",
+          "oklch(72% 0.01886 116.59)",
+          "oklch(84% 0.01886 116.59)",
+          "oklch(95% 0.01886 116.59)"
+        ]
+      },
+      "selected-surface": {
+        "role": "secondary",
+        "displayName": "Selected Surface",
+        "tonalRamp": [
+          "oklch(15% 0.01670 125.29)",
+          "oklch(26% 0.01670 125.29)",
+          "oklch(38% 0.01670 125.29)",
+          "oklch(49% 0.01670 125.29)",
+          "oklch(61% 0.01670 125.29)",
+          "oklch(72% 0.01670 125.29)",
+          "oklch(84% 0.01670 125.29)",
+          "oklch(95% 0.01670 125.29)"
+        ]
+      },
+      "selected-border": {
+        "role": "secondary",
+        "displayName": "Selected Border",
+        "tonalRamp": [
+          "oklch(15% 0.06004 157.75)",
+          "oklch(26% 0.06004 157.75)",
+          "oklch(38% 0.06004 157.75)",
+          "oklch(49% 0.06004 157.75)",
+          "oklch(61% 0.06004 157.75)",
+          "oklch(72% 0.06004 157.75)",
+          "oklch(84% 0.06004 157.75)",
+          "oklch(95% 0.06004 157.75)"
+        ]
+      },
+      "live-surface": {
+        "role": "secondary",
+        "displayName": "Live Surface",
+        "tonalRamp": [
+          "oklch(15% 0.02183 149.70)",
+          "oklch(26% 0.02183 149.70)",
+          "oklch(38% 0.02183 149.70)",
+          "oklch(49% 0.02183 149.70)",
+          "oklch(61% 0.02183 149.70)",
+          "oklch(72% 0.02183 149.70)",
+          "oklch(84% 0.02183 149.70)",
+          "oklch(95% 0.02183 149.70)"
+        ]
+      },
+      "live-ink": {
+        "role": "secondary",
+        "displayName": "Live Ink",
+        "tonalRamp": [
+          "oklch(15% 0.06993 157.89)",
+          "oklch(26% 0.06993 157.89)",
+          "oklch(38% 0.06993 157.89)",
+          "oklch(49% 0.06993 157.89)",
+          "oklch(61% 0.06993 157.89)",
+          "oklch(72% 0.06993 157.89)",
+          "oklch(84% 0.06993 157.89)",
+          "oklch(95% 0.06993 157.89)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Input Border",
+        "tonalRamp": [
+          "oklch(15% 0.01445 155.54)",
+          "oklch(26% 0.01445 155.54)",
+          "oklch(38% 0.01445 155.54)",
+          "oklch(49% 0.01445 155.54)",
+          "oklch(61% 0.01445 155.54)",
+          "oklch(72% 0.01445 155.54)",
+          "oklch(84% 0.01445 155.54)",
+          "oklch(95% 0.01445 155.54)"
+        ]
+      },
+      "art-management": {
+        "role": "secondary",
+        "displayName": "Art Management",
+        "tonalRamp": [
+          "oklch(15% 0.02390 88.24)",
+          "oklch(26% 0.02390 88.24)",
+          "oklch(38% 0.02390 88.24)",
+          "oklch(49% 0.02390 88.24)",
+          "oklch(61% 0.02390 88.24)",
+          "oklch(72% 0.02390 88.24)",
+          "oklch(84% 0.02390 88.24)",
+          "oklch(95% 0.02390 88.24)"
+        ]
+      },
+      "art-management-ink": {
+        "role": "secondary",
+        "displayName": "Art Management Ink",
+        "tonalRamp": [
+          "oklch(15% 0.06304 88.18)",
+          "oklch(26% 0.06304 88.18)",
+          "oklch(38% 0.06304 88.18)",
+          "oklch(49% 0.06304 88.18)",
+          "oklch(61% 0.06304 88.18)",
+          "oklch(72% 0.06304 88.18)",
+          "oklch(84% 0.06304 88.18)",
+          "oklch(95% 0.06304 88.18)"
+        ]
+      },
+      "art-marketing": {
+        "role": "secondary",
+        "displayName": "Art Marketing",
+        "tonalRamp": [
+          "oklch(15% 0.01559 126.83)",
+          "oklch(26% 0.01559 126.83)",
+          "oklch(38% 0.01559 126.83)",
+          "oklch(49% 0.01559 126.83)",
+          "oklch(61% 0.01559 126.83)",
+          "oklch(72% 0.01559 126.83)",
+          "oklch(84% 0.01559 126.83)",
+          "oklch(95% 0.01559 126.83)"
+        ]
+      },
+      "art-marketing-ink": {
+        "role": "secondary",
+        "displayName": "Art Marketing Ink",
+        "tonalRamp": [
+          "oklch(15% 0.05250 149.31)",
+          "oklch(26% 0.05250 149.31)",
+          "oklch(38% 0.05250 149.31)",
+          "oklch(49% 0.05250 149.31)",
+          "oklch(61% 0.05250 149.31)",
+          "oklch(72% 0.05250 149.31)",
+          "oklch(84% 0.05250 149.31)",
+          "oklch(95% 0.05250 149.31)"
+        ]
+      },
+      "art-esport": {
+        "role": "secondary",
+        "displayName": "Art Esport",
+        "tonalRamp": [
+          "oklch(15% 0.01094 297.61)",
+          "oklch(26% 0.01094 297.61)",
+          "oklch(38% 0.01094 297.61)",
+          "oklch(49% 0.01094 297.61)",
+          "oklch(61% 0.01094 297.61)",
+          "oklch(72% 0.01094 297.61)",
+          "oklch(84% 0.01094 297.61)",
+          "oklch(95% 0.01094 297.61)"
+        ]
+      },
+      "art-esport-ink": {
+        "role": "secondary",
+        "displayName": "Art Esport Ink",
+        "tonalRamp": [
+          "oklch(15% 0.04001 297.77)",
+          "oklch(26% 0.04001 297.77)",
+          "oklch(38% 0.04001 297.77)",
+          "oklch(49% 0.04001 297.77)",
+          "oklch(61% 0.04001 297.77)",
+          "oklch(72% 0.04001 297.77)",
+          "oklch(84% 0.04001 297.77)",
+          "oklch(95% 0.04001 297.77)"
+        ]
+      },
+      "art-digital-marketing": {
+        "role": "secondary",
+        "displayName": "Art Digital Marketing",
+        "tonalRamp": [
+          "oklch(15% 0.01287 190.94)",
+          "oklch(26% 0.01287 190.94)",
+          "oklch(38% 0.01287 190.94)",
+          "oklch(49% 0.01287 190.94)",
+          "oklch(61% 0.01287 190.94)",
+          "oklch(72% 0.01287 190.94)",
+          "oklch(84% 0.01287 190.94)",
+          "oklch(95% 0.01287 190.94)"
+        ]
+      },
+      "art-digital-marketing-ink": {
+        "role": "secondary",
+        "displayName": "Art Digital Marketing Ink",
+        "tonalRamp": [
+          "oklch(15% 0.05051 199.28)",
+          "oklch(26% 0.05051 199.28)",
+          "oklch(38% 0.05051 199.28)",
+          "oklch(49% 0.05051 199.28)",
+          "oklch(61% 0.05051 199.28)",
+          "oklch(72% 0.05051 199.28)",
+          "oklch(84% 0.05051 199.28)",
+          "oklch(95% 0.05051 199.28)"
+        ]
+      },
+      "art-innovation": {
+        "role": "secondary",
+        "displayName": "Art Innovation",
+        "tonalRamp": [
+          "oklch(15% 0.01462 64.33)",
+          "oklch(26% 0.01462 64.33)",
+          "oklch(38% 0.01462 64.33)",
+          "oklch(49% 0.01462 64.33)",
+          "oklch(61% 0.01462 64.33)",
+          "oklch(72% 0.01462 64.33)",
+          "oklch(84% 0.01462 64.33)",
+          "oklch(95% 0.01462 64.33)"
+        ]
+      },
+      "art-innovation-ink": {
+        "role": "secondary",
+        "displayName": "Art Innovation Ink",
+        "tonalRamp": [
+          "oklch(15% 0.05668 49.51)",
+          "oklch(26% 0.05668 49.51)",
+          "oklch(38% 0.05668 49.51)",
+          "oklch(49% 0.05668 49.51)",
+          "oklch(61% 0.05668 49.51)",
+          "oklch(72% 0.05668 49.51)",
+          "oklch(84% 0.05668 49.51)",
+          "oklch(95% 0.05668 49.51)"
+        ]
+      },
+      "art-international": {
+        "role": "secondary",
+        "displayName": "Art International",
+        "tonalRamp": [
+          "oklch(15% 0.01149 252.09)",
+          "oklch(26% 0.01149 252.09)",
+          "oklch(38% 0.01149 252.09)",
+          "oklch(49% 0.01149 252.09)",
+          "oklch(61% 0.01149 252.09)",
+          "oklch(72% 0.01149 252.09)",
+          "oklch(84% 0.01149 252.09)",
+          "oklch(95% 0.01149 252.09)"
+        ]
+      },
+      "art-international-ink": {
+        "role": "secondary",
+        "displayName": "Art International Ink",
+        "tonalRamp": [
+          "oklch(15% 0.05254 239.42)",
+          "oklch(26% 0.05254 239.42)",
+          "oklch(38% 0.05254 239.42)",
+          "oklch(49% 0.05254 239.42)",
+          "oklch(61% 0.05254 239.42)",
+          "oklch(72% 0.05254 239.42)",
+          "oklch(84% 0.05254 239.42)",
+          "oklch(95% 0.05254 239.42)"
+        ]
+      },
+      "art-logistics": {
+        "role": "secondary",
+        "displayName": "Art Logistics",
+        "tonalRamp": [
+          "oklch(15% 0.02656 104.57)",
+          "oklch(26% 0.02656 104.57)",
+          "oklch(38% 0.02656 104.57)",
+          "oklch(49% 0.02656 104.57)",
+          "oklch(61% 0.02656 104.57)",
+          "oklch(72% 0.02656 104.57)",
+          "oklch(84% 0.02656 104.57)",
+          "oklch(95% 0.02656 104.57)"
+        ]
+      },
+      "art-logistics-ink": {
+        "role": "secondary",
+        "displayName": "Art Logistics Ink",
+        "tonalRamp": [
+          "oklch(15% 0.07009 106.46)",
+          "oklch(26% 0.07009 106.46)",
+          "oklch(38% 0.07009 106.46)",
+          "oklch(49% 0.07009 106.46)",
+          "oklch(61% 0.07009 106.46)",
+          "oklch(72% 0.07009 106.46)",
+          "oklch(84% 0.07009 106.46)",
+          "oklch(95% 0.07009 106.46)"
+        ]
+      },
+      "art-finance": {
+        "role": "secondary",
+        "displayName": "Art Finance",
+        "tonalRamp": [
+          "oklch(15% 0.01502 119.12)",
+          "oklch(26% 0.01502 119.12)",
+          "oklch(38% 0.01502 119.12)",
+          "oklch(49% 0.01502 119.12)",
+          "oklch(61% 0.01502 119.12)",
+          "oklch(72% 0.01502 119.12)",
+          "oklch(84% 0.01502 119.12)",
+          "oklch(95% 0.01502 119.12)"
+        ]
+      },
+      "art-finance-ink": {
+        "role": "secondary",
+        "displayName": "Art Finance Ink",
+        "tonalRamp": [
+          "oklch(15% 0.05800 126.22)",
+          "oklch(26% 0.05800 126.22)",
+          "oklch(38% 0.05800 126.22)",
+          "oklch(49% 0.05800 126.22)",
+          "oklch(61% 0.05800 126.22)",
+          "oklch(72% 0.05800 126.22)",
+          "oklch(84% 0.05800 126.22)",
+          "oklch(95% 0.05800 126.22)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Compact Display",
+        "purpose": "Hero headline; responsive overrides are documented in DESIGN.md."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Base page headline, with local page and presentation sizes."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Base section title; panel sizes vary by surface."
+      },
+      "body": {
+        "displayName": "Bilingual Body",
+        "purpose": "Shared Latin/Thai root; prose uses more open leading."
+      },
+      "label": {
+        "displayName": "Action Label",
+        "purpose": "Standard button labels; not a minimum size for all metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "selected-filter",
+        "value": "0 2px 5px #1735400a",
+        "purpose": "Selected filter segment."
+      },
+      {
+        "name": "department-hover",
+        "value": "0 9px 25px #17354010",
+        "purpose": "Enabled department link hover."
+      },
+      {
+        "name": "waiting-symbol",
+        "value": "0 8px 25px #a88d2b0b",
+        "purpose": "Light ambient waiting symbol."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "background 0.18s, transform 0.18s; hover translateY(-1px)",
+        "purpose": "Enabled action feedback."
+      },
+      {
+        "name": "navigation-state",
+        "value": "background 0.18s, color 0.18s",
+        "purpose": "Desktop link state."
+      },
+      {
+        "name": "department-state",
+        "value": "transform 0.2s, box-shadow 0.2s; hover translateY(-4px)",
+        "purpose": "Whole-card link hover."
+      },
+      {
+        "name": "answer-state",
+        "value": "background 0.15s, border-color 0.15s",
+        "purpose": "Answer hover and selected-state surface."
+      },
+      {
+        "name": "loading",
+        "value": "1.8s ease-in-out infinite",
+        "purpose": "Skeleton background pulse."
+      },
+      {
+        "name": "completion",
+        "value": "scale 0.96 to 1",
+        "purpose": "Framer Motion completion; no custom duration specified."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce; MotionConfig reducedMotion=\"user\"",
+        "purpose": "CSS animations/transitions disabled and smooth scroll reset; Framer Motion honors user preference."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1550px"
+      },
+      {
+        "name": "compact-desktop-max",
+        "value": "1200px"
+      },
+      {
+        "name": "tablet-max",
+        "value": "1000px"
+      },
+      {
+        "name": "mobile-navigation-max",
+        "value": "760px"
+      },
+      {
+        "name": "phone-max",
+        "value": "540px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Operational primary action.",
+      "html": "<button class=\"ds-button-primary\">เข้าสู่ภารกิจ <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></button>",
+      "css": ".ds-button-primary{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:13px;min-height:46px;padding:12px 20px;border:0;border-radius:7px;background:var(--navy,#173540);color:#fff;font-size:12px;font-weight:600;line-height:1.5;cursor:pointer;transition:background .18s,transform .18s;}.ds-button-primary:hover:not(:disabled){transform:translateY(-1px);background:#264a52;}.ds-button-primary:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}.ds-button-primary:disabled{opacity:.5;cursor:not-allowed;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none;}}"
+    },
+    {
+      "name": "Gold Entry Button",
+      "kind": "button",
+      "refersTo": "button-gold",
+      "description": "Gold entry emphasis.",
+      "html": "<button class=\"ds-button-gold\">เข้าสู่สนามธุรกิจ <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></button>",
+      "css": ".ds-button-gold{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:13px;min-height:46px;padding:12px 20px;border:0;border-radius:7px;background:var(--gold,#eac15c);color:var(--navy-deep,#112b35);font-size:12px;font-weight:600;line-height:1.5;cursor:pointer;transition:background .18s,transform .18s;}.ds-button-gold:hover:not(:disabled){transform:translateY(-1px);background:#f3ce77;}.ds-button-gold:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}.ds-button-gold:disabled{opacity:.5;cursor:not-allowed;}@media(prefers-reduced-motion:reduce){.ds-button-gold{transition:none;}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting action or keep-presenting choice.",
+      "html": "<button class=\"ds-button-secondary\">แสดงต่อ</button>",
+      "css": ".ds-button-secondary{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:13px;min-height:46px;padding:12px 20px;border:0;border-radius:7px;background:#eaf0e8;color:#214238;font-size:12px;font-weight:600;line-height:1.5;cursor:pointer;transition:background .18s,transform .18s;}.ds-button-secondary:hover:not(:disabled){transform:translateY(-1px);}.ds-button-secondary:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}.ds-button-secondary:disabled{opacity:.5;cursor:not-allowed;}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none;}}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Native labeled input with visible keyboard focus.",
+      "html": "<label class=\"ds-field\">ชื่อผู้เข้าร่วม<input class=\"ds-input\" placeholder=\"ชื่อของคุณ\" autocomplete=\"name\"></label>",
+      "css": ".ds-field{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:grid;gap:8px;font-size:12px;color:var(--ink,#173540);}.ds-input{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);min-height:46px;border:1px solid #c9d3cc;border-radius:8px;background:#fff;padding:10px 13px;width:100%;color:var(--ink,#173540);}.ds-input::placeholder{color:#73817d;}.ds-input:focus-visible{outline:2px solid #32746d;outline-offset:2px;}"
+    },
+    {
+      "name": "Marine Navigation",
+      "kind": "nav",
+      "description": "Desktop route link with icon, gold active treatment and lighter marine hover.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Example navigation\"><a href=\"#main\" aria-current=\"page\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m16 8-3 5-5 3 3-5Z\"/></svg>สนามธุรกิจ</a><a href=\"#passport\">พาสปอร์ตของฉัน</a></nav>",
+      "css": ".ds-nav{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:flex;flex-direction:column;gap:6px;background:var(--navy,#173540);padding:20px;max-width:226px;}.ds-nav a{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:8px;color:#c0d0cc;font-weight:500;font-size:13px;text-decoration:none;transition:background .18s,color .18s;}.ds-nav a:hover{background:#25434b;color:#fff;}.ds-nav a[aria-current]{background:#2c464b;color:#ffe09b;}.ds-nav a[aria-current] svg{color:var(--gold,#eac15c);}.ds-nav a:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}@media(prefers-reduced-motion:reduce){.ds-nav a{transition:none;}}"
+    },
+    {
+      "name": "Live Status Badge",
+      "kind": "chip",
+      "refersTo": "status-live",
+      "description": "Read-only availability badge; status is conveyed with text and dot.",
+      "html": "<span class=\"ds-status\"><i aria-hidden=\"true\"></i>เปิดแล้ว</span>",
+      "css": ".ds-status{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:4px 7px;border-radius:4px;font-size:8px;font-weight:500;line-height:1.5;white-space:nowrap;background:#dfede1;color:#326348;}.ds-status i{width:5px;height:5px;background:#367151;border-radius:50%;}"
+    },
+    {
+      "name": "Discipline Card",
+      "kind": "card",
+      "refersTo": "department-card",
+      "description": "Whole-card link with category line art, heading, status and progress. Preview uses the Marketing tone.",
+      "html": "<a class=\"ds-card\" href=\"#marketing\"><div class=\"ds-art\"><span class=\"ds-number\">02</span><span class=\"ds-rings\"></span><svg width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M3 8h5l12-4v16L8 16H3ZM8 16l2 6H6l-2-6M8 8v8\"/></svg><span class=\"ds-card-status\">รอเริ่มภารกิจ</span></div><div class=\"ds-card-body\"><h3>การตลาด</h3><span class=\"ds-card-english\">MARKETING</span><p>เข้าใจลูกค้า สร้างคุณค่าให้ธุรกิจ</p><div class=\"ds-card-bottom\"><span class=\"ds-mini\"><i></i><i></i><i></i><span>0 / 3</span></span><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></div></div></a>",
+      "css": ".ds-card{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);display:block;max-width:250px;background:#fff;color:var(--ink,#173540);border-radius:12px;overflow:hidden;text-decoration:none;transition:transform .2s,box-shadow .2s;}.ds-card:hover{transform:translateY(-4px);box-shadow:0 9px 25px #17354010;}.ds-card:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}.ds-art{height:109px;background:#e5eadf;color:#527057;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}.ds-art svg{position:relative;}.ds-number{position:absolute;top:12px;left:15px;font-size:11px;opacity:.8;}.ds-rings{position:absolute;width:147px;height:147px;border:1px solid currentColor;border-radius:50%;opacity:.13;top:-19px;}.ds-rings:before,.ds-rings:after{content:\"\";position:absolute;border:1px solid currentColor;border-radius:50%;}.ds-rings:before{inset:21px;}.ds-rings:after{inset:-22px;}.ds-card-status{position:absolute;bottom:10px;right:10px;background:#ffffffdf;color:#53604e;font-size:8px;padding:4px 7px;border-radius:4px;}.ds-card-body{padding:16px 17px 14px;}.ds-card-body h3{margin:0;font-size:15px;font-weight:600;line-height:1.35;letter-spacing:-.025em;}.ds-card-english{display:block;margin-top:6px;color:#64736b;font-size:8px;letter-spacing:.08em;line-height:1.5;font-weight:500;}.ds-card-body p{font-size:10px;color:var(--muted,#607176);line-height:1.7;margin:6px 0 0;min-height:34px;}.ds-card-bottom{border-top:1px solid #edf0e8;padding-top:13px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;}.ds-mini{display:flex;align-items:center;gap:3px;}.ds-mini i{height:4px;width:10px;border-radius:2px;background:#e0e6db;}.ds-mini span{font-size:8px;color:#687963;margin-left:5px;}@media(prefers-reduced-motion:reduce){.ds-card{transition:none;}}"
+    },
+    {
+      "name": "Answer Selection",
+      "kind": "custom",
+      "refersTo": "answer-selected",
+      "description": "Native radio label with selected surface and focus on the full wrapper.",
+      "html": "<fieldset class=\"ds-answers\"><legend>เลือกคำตอบ</legend><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\" checked><span class=\"ds-letter\">A</span><span class=\"ds-answer-copy\"><strong>พิจารณาเป้าหมายของทีม</strong><span>ดูผลต่อธุรกิจก่อนตัดสินใจ</span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\"><span class=\"ds-letter\">B</span><span class=\"ds-answer-copy\"><strong>พิจารณาผลระยะสั้น</strong><span>เปรียบเทียบกับสถานะธุรกิจปัจจุบัน</span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label></fieldset>",
+      "css": ".ds-answers{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;color:var(--ink,#173540);}.ds-answers legend{font-size:12px;margin-bottom:10px;}.ds-answer{border:1px solid #dce2d5;border-radius:9px;padding:17px 14px;display:flex;gap:11px;align-items:flex-start;position:relative;cursor:pointer;transition:background .15s,border-color .15s;}.ds-answer:hover{background:#f6f8f1;}.ds-answer:has(input:checked){border-color:#487159;background:#f0f5e9;}.ds-answer:has(input:focus-visible){outline:3px solid #bd8225;outline-offset:3px;}.ds-answer input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;}.ds-letter{display:grid;place-items:center;min-width:26px;height:26px;background:#f1f3eb;border-radius:5px;font-size:10px;color:#647862;}.ds-answer:has(input:checked) .ds-letter{background:#dce8ce;color:#3c6344;}.ds-answer-copy{flex:1;}.ds-answer-copy strong{display:block;font-size:13px;line-height:1.5;}.ds-answer-copy>span{display:block;font-size:11px;line-height:1.7;color:var(--muted,#607176);margin-top:4px;}.ds-answer-check{height:17px;width:17px;border:1px solid #b9c5ad;border-radius:50%;display:grid;place-items:center;margin-top:4px;}.ds-answer-check svg{visibility:hidden;}.ds-answer:has(input:checked) .ds-answer-check{background:#406c47;color:#fff;border-color:#406c47;}.ds-answer:has(input:checked) .ds-answer-check svg{visibility:visible;}@media(prefers-reduced-motion:reduce){.ds-answer{transition:none;}}"
+    },
+    {
+      "name": "Objective Context",
+      "kind": "card",
+      "refersTo": "mission-target",
+      "description": "Persistent objective, criterion and explanatory copy. Content is example text, not a new game target.",
+      "html": "<aside class=\"ds-target\"><h3>เป้าหมายธุรกิจของคุณ</h3><span>YOUR STRATEGIC TARGET</span><p>พิจารณาเป้าหมายและสถานะธุรกิจก่อนเลือก</p><strong>เกณฑ์เป้าหมายของทีมจะแสดงที่นี่</strong></aside>",
+      "css": ".ds-target{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);max-width:248px;padding:25px;background:#e9ecde;border-radius:11px;color:var(--ink,#173540);}.ds-target h3{font-size:22px;line-height:1.2;letter-spacing:-.025em;font-weight:600;margin:0;}.ds-target>span{display:block;margin-top:10px;font-size:9px;letter-spacing:.03em;color:#697a55;}.ds-target p{font-size:11px;line-height:1.8;color:#61714d;margin:13px 0 0;}.ds-target strong{display:block;font-size:13px;font-weight:500;border-top:1px solid #ced7c0;margin-top:18px;padding-top:17px;line-height:1.6;}"
+    },
+    {
+      "name": "Unlock Dialog Surface",
+      "kind": "custom",
+      "description": "Static native dialog preview; the application opens it modally and handles cancellation/confirmation.",
+      "html": "<dialog open class=\"ds-dialog\" aria-labelledby=\"ds-unlock-title\"><h2 id=\"ds-unlock-title\">ออกจากจอพรีเซนต์?</h2><p>ยืนยันเพื่อกลับไปยังหน้าควบคุมการแข่งขัน</p><div><button class=\"ds-keep\">แสดงต่อ</button><button class=\"ds-confirm\">ยืนยันปลดล็อก</button></div></dialog>",
+      "css": ".ds-dialog{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);position:relative;margin:0;border:0;width:min(460px,calc(100vw - 40px));padding:30px;color:var(--ink,#173540);background:#fff;border-radius:13px;}.ds-dialog::backdrop{background:#081d25bd;}.ds-dialog h2{font-size:24px;font-weight:600;line-height:1.35;letter-spacing:-.025em;margin:0;}.ds-dialog p{margin:14px 0 0;font-size:12px;line-height:1.8;color:var(--muted,#607176);}.ds-dialog>div{display:flex;gap:12px;margin-top:24px;}.ds-dialog button{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);min-height:46px;border:0;border-radius:7px;padding:12px 20px;font-size:12px;font-weight:600;line-height:1.5;cursor:pointer;transition:background .18s,transform .18s;}.ds-keep{background:#eaf0e8;color:#214238;}.ds-confirm{background:var(--navy,#173540);color:#fff;}.ds-dialog button:hover{transform:translateY(-1px);}.ds-confirm:hover{background:#264a52;}.ds-dialog button:focus-visible{outline:3px solid #bd8225;outline-offset:5px;}@media(prefers-reduced-motion:reduce){.ds-dialog button{transition:none;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Academic Exhibition Guide",
+    "overview": "Cream paper, deep marine wayfinding and warm UBS gold make the business challenge feel like a coherent university exhibition. Precise circular diagrams, numbered disciplines and passport stamps connect eight areas of study without requiring decorative scenery. The supplied UTCC Business School logo anchors the identity.\n\nThe interface serves participants making decisions on phones and organizers operating controls on desktops and a stage display. Keep the working surfaces calm, the next action explicit and progress visible. The source implementation is the authority when older screenshots differ.",
+    "keyCharacteristics": [
+      "Marine navigation and large compact display typography.",
+      "Cream page canvas with white operational panels and muted discipline illustrations.",
+      "A connected eight-node business diagram and circular completion stamps.",
+      "Thai-first content with an English interface toggle.",
+      "Visible objectives, business state and three-question progress."
+    ],
+    "rules": [
+      {
+        "name": "The Meaning Before Color Rule",
+        "body": "Keep state names, counts and icons alongside color; a green tint alone does not explain progress or availability.",
+        "section": "colors"
+      },
+      {
+        "name": "The Heading First Rule",
+        "body": "Put the meaningful Thai discipline or objective heading before its English name or descriptive metadata, following the current component order.",
+        "section": "typography"
+      },
+      {
+        "name": "The Context Before Choice Rule",
+        "body": "Keep the current business objective, measurable target and business metrics ahead of the scenario on compact screens. Refresh target context with live target changes; do not make participants leave their decision to find it.",
+        "section": "layout"
+      },
+      {
+        "name": "The Tonal Depth Rule",
+        "body": "Use surface color and spacing before adding elevation; keep shadows tied to the existing selection, hover or waiting treatments.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use marine for wayfinding, cream for the canvas and white for operational panels.",
+      "**Do** preserve gold emphasis for brand, entry, completion and presentation hierarchy.",
+      "**Do** keep Thai and English content legible within the shared self-hosted type stack.",
+      "**Do** put objective, current business metrics and three-step progress within the decision flow.",
+      "**Do** pair state color with labels, icons or counts and retain native input and dialog semantics.",
+      "**Do** preserve reduced-motion behavior, visible focus and mobile navigation clearance."
+    ],
+    "donts": [
+      "**Don't** promote tiny incumbent metadata or decorative uppercase captions into a required text style.",
+      "**Don't** replace precise SVG diagrams and the supplied logo with invented scenery or glyph icons.",
+      "**Don't** add heavy shadows to every panel or flatten distinct category colors into status colors.",
+      "**Don't** expose organizer rankings in participant surfaces or fabricate scores for empty states.",
+      "**Don't** infer contrast compliance or final screenshot fidelity from this documentation."
+    ]
+  }
+}

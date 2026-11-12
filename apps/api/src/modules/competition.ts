@@ -1,0 +1,358 @@
+import { timingSafeEqual } from "node:crypto";
+import { and, asc, eq, sql } from "drizzle-orm";
+import { db } from "../db";
+import {
+  users,
+  departments,
+  questions,
+  userAnswers,
+  competition,
+  finalAnswers,
+} from "../db/schema";
+import {
+  FINALIST_COUNT,
+  QUESTION_SECONDS,
+  QUESTION_GRACE_SECONDS,
+  finalFit,
+  finalOptions,
+  finalScenario,
+  objectiveForTeam,
+  objectives,
+  type ObjectiveId,
+} from "../game/engine";
+import {
+  ApiError,
+  getCompetition,
+  leaderboard,
+  type User,
+} from "./game";
+
+// Unambiguous characters only: no 0/O, 1/I/L.
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+export function newAccessCode(length = 6) {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join(
+    "",
+  );
+}
+export const teamLabel = (n: number) => `TEAM ${String(n).padStart(3, "0")}`;
+
+/** Team numbers that can sign in (shown on the join screen). */
+export async function teamNumbers() {
+  const rows = await db
+    .select({ teamNumber: users.teamNumber })
+    .from(users)
+    .where(
+      and(eq(users.role, "attendee"), sql`${users.accessCode} is not null`),
+    )
+    .orderBy(asc(users.teamNumber));
+  return rows.map((r) => r.teamNumber);
+}
+
+/** Sign-in for a team: number + organizer-issued code (case-insensitive). */
+export async function teamLogin(teamNumber: number, code: string) {
+  const [team] = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.teamNumber, teamNumber), eq(users.role, "attendee")));
+  const expected = team?.accessCode ?? "";
+  const given = code.trim().toUpperCase();
+  const a = Buffer.from(expected.padEnd(32).slice(0, 32));
+  const b = Buffer.from(given.padEnd(32).slice(0, 32));
+  const same =
+    !!team &&
+    expected.length > 0 &&
+    given.length === expected.length &&
+    timingSafeEqual(a, b);
+  if (!same) throw new ApiError(401, "หมายเลขทีมหรือรหัสทีมไม่ถูกต้อง");
+  return team;
+}
+
+/**
+ * Ensures teams 1..count exist and each has an access code. Existing teams,
+ * their names, targets and answers are kept; only missing codes are issued.
+ */
+export async function generateTeams(count: number) {
+  await db.transaction(async (tx) => {
+    const existing = await tx
+      .select()
+      .from(users)
+      .where(eq(users.role, "attendee"));
+    for (let n = 1; n <= count; n++) {
+      const team = existing.find((u) => u.teamNumber === n);
+      if (team) {
+        if (!team.accessCode)
+          await tx
+            .update(users)
+            .set({ accessCode: newAccessCode() })
+            .where(eq(users.id, team.id));
+        continue;
+      }
+      await tx.insert(users).values({
+        teamNumber: n,
+        fullName: teamLabel(n),
+        accessCode: newAccessCode(),
+        objectiveId: objectiveForTeam(n),
+        role: "attendee",
+      });
+    }
+    // Keep the serial sequence ahead of explicit team numbers.
+    await tx.execute(
+      sql`select setval(pg_get_serial_sequence('users', 'team_number'), greatest((select max(team_number) from users), 1))`,
+    );
+  });
+  return adminTeams();
+}
+
+export async function regenerateCode(id: string) {
+  const [team] = await db
+    .update(users)
+    .set({ accessCode: newAccessCode() })
+    .where(and(eq(users.id, id), eq(users.role, "attendee")))
+    .returning();
+  if (!team) throw new ApiError(404, "ไม่พบทีม");
+  return { id: team.id, accessCode: team.accessCode };
+}
+
+export async function renameTeam(user: User, name: string) {
+  if (user.role !== "attendee") throw new ApiError(403, "เฉพาะทีมผู้เล่น");
+  const clean = name.trim().replace(/\s+/g, " ");
+  if (clean.length < 2) throw new ApiError(400, "ชื่อทีมต้องมีอย่างน้อย 2 ตัวอักษร");
+  const [updated] = await db
+    .update(users)
+    .set({ fullName: clean.slice(0, 36) })
+    .where(eq(users.id, user.id))
+    .returning();
+  return updated;
+}
+
+/** Organizer view of every team, including access codes and progress. */
+export async function adminTeams() {
+  const rows = await db
+    .select({
+      id: users.id,
+      teamNumber: users.teamNumber,
+      fullName: users.fullName,
+      email: users.email,
+      accessCode: users.accessCode,
+      objectiveId: users.objectiveId,
+      finalistRank: users.finalistRank,
+      answered: sql<number>`(select count(*)::int from user_answers where user_answers.user_id = "users"."id")`,
+    })
+    .from(users)
+    .where(eq(users.role, "attendee"))
+    .orderBy(asc(users.teamNumber));
+  return rows.map((r) => ({
+    ...r,
+    objective: objectives.find((o) => o.id === r.objectiveId)!,
+  }));
+}
+
+/** Every decision a team made, with its written reason, for organizer review. */
+export async function teamAnswers(id: string) {
+  const [team] = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.role, "attendee")));
+  if (!team) throw new ApiError(404, "ไม่พบทีม");
+  const rows = await db
+    .select({
+      department: departments.nameTh,
+      displayOrder: departments.displayOrder,
+      questionNumber: userAnswers.questionNumber,
+      title: questions.title,
+      options: questions.options,
+      optionIds: userAnswers.optionIds,
+      reason: userAnswers.reason,
+      answeredAt: userAnswers.answeredAt,
+    })
+    .from(userAnswers)
+    .innerJoin(departments, eq(departments.id, userAnswers.departmentId))
+    .innerJoin(questions, eq(questions.id, userAnswers.questionId))
+    .where(eq(userAnswers.userId, id))
+    .orderBy(asc(departments.displayOrder), asc(userAnswers.questionNumber));
+  const [final] = await db
+    .select()
+    .from(finalAnswers)
+    .where(eq(finalAnswers.userId, id));
+  return {
+    team: { id: team.id, teamNumber: team.teamNumber, fullName: team.fullName },
+    answers: rows.map((r) => ({
+      stage: (r.displayOrder - 1) * 3 + r.questionNumber,
+      department: r.department,
+      questionNumber: r.questionNumber,
+      title: r.title,
+      timedOut: r.optionIds.length === 0,
+      choices: r.optionIds.map(
+        (oid) => r.options.find((o) => o.id === oid)?.title ?? oid,
+      ),
+      reason: r.reason,
+      answeredAt: r.answeredAt,
+    })),
+    final: final
+      ? {
+          choice:
+            finalOptions.find((o) => o.id === final.optionId)?.title ??
+            final.optionId,
+          reason: final.reason,
+          isFinalist: final.isFinalist,
+          fit: final.fit,
+          answeredAt: final.answeredAt,
+        }
+      : null,
+  };
+}
+
+/** Snapshots the current Top 10 as finalists and opens the Final round. */
+export async function openFinal() {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select 1 from competition where id = 1 for update`);
+    const current = await getCompetition(tx);
+    if (current.phase !== "qualifier")
+      throw new ApiError(409, "เปิดรอบ Final ไปแล้ว");
+    const board = (await leaderboard()).filter((r) => r.answered > 0);
+    if (!board.length) throw new ApiError(409, "ยังไม่มีทีมที่มีคะแนน");
+    const top = board.slice(0, FINALIST_COUNT);
+    for (const [i, r] of top.entries())
+      await tx
+        .update(users)
+        .set({ finalistRank: i + 1, finalPoints: 0 })
+        .where(eq(users.id, r.id));
+    const [row] = await tx
+      .update(competition)
+      .set({ phase: "final", finalOpenedAt: new Date() })
+      .where(eq(competition.id, 1))
+      .returning();
+    return { competition: row, finalists: top.length };
+  });
+}
+
+export async function closeCompetition() {
+  const [row] = await db
+    .update(competition)
+    .set({ phase: "closed", closedAt: new Date() })
+    .where(eq(competition.id, 1))
+    .returning();
+  return { competition: row };
+}
+
+/** Clears all answers, scores, finalists and gates. Teams and codes stay. */
+export async function resetCompetition() {
+  await db.transaction(async (tx) => {
+    await tx.delete(finalAnswers);
+    await tx.delete(userAnswers);
+    await tx
+      .update(users)
+      .set({
+        totalPoints: 0,
+        finalPoints: 0,
+        finalistRank: null,
+        lastSubmissionAt: null,
+      });
+    await tx
+      .update(departments)
+      .set({ isQ1Unlocked: false, q1UnlockedAt: null });
+    await tx
+      .update(competition)
+      .set({ phase: "qualifier", finalOpenedAt: null, closedAt: null })
+      .where(eq(competition.id, 1));
+  });
+  return { reset: true };
+}
+
+const finalWindow = (openedAt: Date | null) =>
+  openedAt
+    ? {
+        startsAt: openedAt.toISOString(),
+        deadline: new Date(
+          openedAt.getTime() + QUESTION_SECONDS * 1000,
+        ).toISOString(),
+        serverNow: new Date().toISOString(),
+        seconds: QUESTION_SECONDS,
+      }
+    : null;
+
+/** What a team sees for the Final. Never reveals fit or ranks. */
+export async function finalStateFor(user: User) {
+  const c = await getCompetition();
+  const [mine] = await db
+    .select()
+    .from(finalAnswers)
+    .where(eq(finalAnswers.userId, user.id));
+  const timer = c.phase === "final" ? finalWindow(c.finalOpenedAt) : null;
+  const expired =
+    !!timer &&
+    Date.now() >
+      new Date(timer.deadline).getTime() + QUESTION_GRACE_SECONDS * 1000;
+  return {
+    phase: c.phase,
+    isFinalist: user.finalistRank !== null,
+    open: c.phase === "final" && !mine && !expired,
+    timer: mine || expired ? null : timer,
+    saved: mine
+      ? {
+          optionId: mine.optionId,
+          reason: mine.reason,
+          answeredAt: mine.answeredAt,
+        }
+      : null,
+    question:
+      c.phase === "qualifier"
+        ? null
+        : {
+            ...finalScenario,
+            options: finalOptions.map((o) => ({
+              id: o.id,
+              title: o.title,
+              detail: o.detail,
+            })),
+          },
+  };
+}
+
+export async function submitFinal(user: User, optionId: string, reason: string) {
+  const clean = reason.trim();
+  if (clean.length < 3)
+    throw new ApiError(400, "กรุณาเขียนเหตุผลของทีมอย่างน้อย 3 ตัวอักษร");
+  if (!finalOptions.some((o) => o.id === optionId))
+    throw new ApiError(400, "ตัวเลือกไม่ถูกต้อง");
+  await db.transaction(async (tx) => {
+    const [locked] = await tx
+      .select()
+      .from(users)
+      .where(eq(users.id, user.id))
+      .for("update");
+    const c = await getCompetition(tx);
+    if (c.phase !== "final" || !c.finalOpenedAt)
+      throw new ApiError(403, "ยังไม่เปิดรับคำตอบ Final");
+    if (
+      Date.now() >
+      c.finalOpenedAt.getTime() +
+        (QUESTION_SECONDS + QUESTION_GRACE_SECONDS) * 1000
+    )
+      throw new ApiError(409, "หมดเวลา 3 นาทีของรอบ Final แล้ว");
+    const [dup] = await tx
+      .select({ id: finalAnswers.userId })
+      .from(finalAnswers)
+      .where(eq(finalAnswers.userId, user.id));
+    if (dup) throw new ApiError(409, "บันทึกคำตอบ Final แล้ว");
+    const isFinalist = locked.finalistRank !== null;
+    const fit = finalFit(locked.objectiveId as ObjectiveId, optionId);
+    await tx.insert(finalAnswers).values({
+      userId: user.id,
+      optionId,
+      reason: clean.slice(0, 300),
+      isFinalist,
+      fit,
+    });
+    // Audience teams may answer, but only finalists score.
+    if (isFinalist)
+      await tx
+        .update(users)
+        .set({ finalPoints: fit })
+        .where(eq(users.id, user.id));
+  });
+  return finalStateFor(
+    (await db.select().from(users).where(eq(users.id, user.id)))[0],
+  );
+}
