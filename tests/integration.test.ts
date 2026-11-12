@@ -329,6 +329,115 @@ describe.skipIf(!enabled)(
         8,
       );
     });
+    test("department reset requires organizer, exact code and no later answers", async () => {
+      const d = departments[0];
+      const path = `/api/admin/departments/${d.id}/reset`;
+      const before = await sqlClient`select * from user_answers order by id`;
+      expect((await call(path, { confirm: d.code })).response.status).toBe(401);
+      expect(
+        (await call(path, { confirm: d.code }, playerToken)).response.status,
+      ).toBe(403);
+      expect(
+        (await call(path, { confirm: "WRONG" }, adminToken)).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await call(
+            "/api/admin/departments/00000000-0000-0000-0000-000000000000/reset",
+            { confirm: d.code },
+            adminToken,
+          )
+        ).response.status,
+      ).toBe(404);
+      const blocked = await call(path, { confirm: d.code }, adminToken);
+      expect(blocked.response.status).toBe(409);
+      expect(blocked.data.error).toContain(departments[1].nameTh);
+      expect(await sqlClient`select * from user_answers order by id`).toEqual(
+        before,
+      );
+    });
+    test("reset last discipline preserves earlier answers, codes and scores; fresh Q1 can be replayed", async () => {
+      const d = departments[7];
+      const before =
+        await sqlClient`select * from user_answers where department_id <> ${d.id} order by id`;
+      const reviewBefore = (
+        await call(
+          `/api/admin/participants/${playerId}/answers`,
+          undefined,
+          adminToken,
+        )
+      ).data;
+      const { simulate } = await import("../apps/api/src/game/engine");
+      const saved = reviewBefore.answers.filter((a: any) => a.stage > 21);
+      const result = await call(
+        `/api/admin/departments/${d.id}/reset`,
+        { confirm: d.code },
+        adminToken,
+      );
+      expect(result.response.status).toBe(200);
+      expect(result.data.deletedAnswers).toBe(3);
+      expect(result.data.teams).toBe(1);
+      expect(result.data.department.isQ1Unlocked).toBe(false);
+      expect(result.data.department.q1UnlockedAt).toBeNull();
+      expect(
+        await sqlClient`select * from user_answers where department_id <> ${d.id} order by id`,
+      ).toEqual(before);
+      const remaining =
+        await sqlClient`select (d.display_order - 1) * 3 + a.question_number as stage, a.option_ids as "optionIds" from user_answers a join departments d on d.id = a.department_id where a.user_id = ${playerId}`;
+      const [team] =
+        await sqlClient`select total_points, last_submission_at, access_code from users where id = ${playerId}`;
+      const [last] =
+        await sqlClient`select max(answered_at) as at from user_answers where user_id = ${playerId}`;
+      expect(team.total_points).toBeCloseTo(
+        simulate("growth", remaining as any).total,
+        8,
+      );
+      expect(team.last_submission_at).toEqual(last.at);
+      expect(team.access_code).toBe(codes[1]);
+      const state = (
+        await call(`/api/departments/${d.id}/state`, undefined, playerToken)
+      ).data;
+      expect(state.status).toBe("locked");
+      expect(state.answered).toBe(0);
+      expect(state.timer).toBeNull();
+      const review = (
+        await call(
+          `/api/admin/participants/${playerId}/answers`,
+          undefined,
+          adminToken,
+        )
+      ).data;
+      expect(review.answers).toHaveLength(21);
+      expect(review.answers).toEqual(reviewBefore.answers.slice(0, 21));
+      await call(`/api/admin/departments/${d.id}/start-q1`, {}, adminToken);
+      const opened = (
+        await call(`/api/departments/${d.id}/state`, undefined, playerToken)
+      ).data;
+      expect(opened.unlockedQuestion).toBe(1);
+      expect(
+        new Date(opened.timer.deadline).getTime() -
+          new Date(opened.timer.serverNow).getTime(),
+      ).toBeGreaterThan(175_000);
+      for (const answer of saved) {
+        const q = bank.find(
+          (q) =>
+            q.departmentId === d.id &&
+            q.questionNumber === answer.questionNumber,
+        );
+        const optionIds = answer.choices.map(
+          (title: string) => q.options.find((o: any) => o.title === title).id,
+        );
+        const replay = await call(
+          `/api/departments/${d.id}/answer`,
+          { questionId: q.id, optionIds, reason: answer.reason },
+          playerToken,
+        );
+        expect(replay.response.status).toBe(200);
+      }
+      expect(
+        (await call("/api/passport", undefined, playerToken)).data.answered,
+      ).toBe(24);
+    });
     test("each question has a 3-minute window; overdue questions time out and advance", async () => {
       const d = departments[0];
       const token = await teamToken(2);
@@ -467,6 +576,15 @@ describe.skipIf(!enabled)(
         (await call("/api/admin/final/open", {}, adminToken)).response.status,
       ).toBe(409);
       expect((await call("/api/competition")).data.phase).toBe("final");
+      expect(
+        (
+          await call(
+            `/api/admin/departments/${departments[7].id}/reset`,
+            { confirm: departments[7].code },
+            adminToken,
+          )
+        ).response.status,
+      ).toBe(409);
       const f = (await call("/api/final", undefined, playerToken)).data;
       expect(f.isFinalist).toBe(true);
       expect(f.open).toBe(true);
@@ -502,8 +620,9 @@ describe.skipIf(!enabled)(
       );
       expect(audience.response.status).toBe(200);
       expect(audience.data.isFinalist).toBe(false);
-      const board = (await call("/api/admin/leaderboard", undefined, adminToken))
-        .data.leaderboard;
+      const board = (
+        await call("/api/admin/leaderboard", undefined, adminToken)
+      ).data.leaderboard;
       const team1 = board.find((r: any) => r.id === playerId);
       // Team 1 target is growth: Protect the Core fits growth at 12 / 20.
       expect(team1.finalPoints).toBe(12);
@@ -520,6 +639,15 @@ describe.skipIf(!enabled)(
       expect(
         (await call("/api/admin/close", {}, adminToken)).response.status,
       ).toBe(200);
+      expect(
+        (
+          await call(
+            `/api/admin/departments/${departments[7].id}/reset`,
+            { confirm: departments[7].code },
+            adminToken,
+          )
+        ).response.status,
+      ).toBe(409);
       const t2 = await teamToken(2);
       expect(
         (
@@ -542,8 +670,9 @@ describe.skipIf(!enabled)(
         (await call("/api/admin/reset", { confirm: "RESET" }, adminToken))
           .response.status,
       ).toBe(200);
-      const board = (await call("/api/admin/leaderboard", undefined, adminToken))
-        .data.leaderboard;
+      const board = (
+        await call("/api/admin/leaderboard", undefined, adminToken)
+      ).data.leaderboard;
       expect(board).toHaveLength(4);
       expect(
         board.every(
@@ -558,6 +687,66 @@ describe.skipIf(!enabled)(
         ),
       ).toBe(true);
       expect(await teamToken(4)).toBeTruthy();
+    });
+    test("reset first discipline clears every team's decisions and timeout records, retaining team identities", async () => {
+      const d = departments[0];
+      await call(`/api/admin/departments/${d.id}/start-q1`, {}, adminToken);
+      const q = bank.find(
+        (q) => q.departmentId === d.id && q.questionNumber === 1,
+      );
+      expect(
+        (
+          await call(
+            `/api/departments/${d.id}/answer`,
+            { questionId: q.id, optionIds: [q.options[0].id] },
+            playerToken,
+          )
+        ).response.status,
+      ).toBe(200);
+      await sqlClient`update departments set q1_unlocked_at = now() - interval '200 seconds' where id = ${d.id}`;
+      const token2 = await teamToken(2);
+      expect(
+        (await call(`/api/departments/${d.id}/state`, undefined, token2)).data
+          .timedOut,
+      ).toBe(1);
+      const before =
+        await sqlClient`select id, full_name, objective_id, access_code from users order by id`;
+      const result = await call(
+        `/api/admin/departments/${d.id}/reset`,
+        { confirm: d.code },
+        adminToken,
+      );
+      expect(result.response.status).toBe(200);
+      expect(result.data.deletedAnswers).toBe(2);
+      expect(result.data.teams).toBe(2);
+      expect(
+        await sqlClient`select id, full_name, objective_id, access_code from users order by id`,
+      ).toEqual(before);
+      expect(await sqlClient`select id from user_answers`).toHaveLength(0);
+      const scores =
+        await sqlClient`select total_points, last_submission_at from users where role = 'attendee'`;
+      expect(
+        scores.every(
+          (u: any) => u.total_points === 0 && u.last_submission_at === null,
+        ),
+      ).toBe(true);
+      for (const token of [playerToken, token2]) {
+        const state = (
+          await call(`/api/departments/${d.id}/state`, undefined, token)
+        ).data;
+        expect(state.status).toBe("locked");
+        expect(state.answered).toBe(0);
+        expect(state.timedOut).toBe(0);
+      }
+      const again = await call(
+        `/api/admin/departments/${d.id}/reset`,
+        { confirm: d.code },
+        adminToken,
+      );
+      expect(again.response.status).toBe(200);
+      expect(again.data.deletedAnswers).toBe(0);
+      expect(again.data.teams).toBe(0);
+      for (const n of [1, 2, 3, 4]) expect(await teamToken(n)).toBeTruthy();
     });
     test("real-time stream authenticates and never sends scoreboard events to players", async () => {
       const { broadcast } = await import("../apps/api/src/modules/realtime");

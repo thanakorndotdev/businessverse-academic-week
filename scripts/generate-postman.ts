@@ -95,7 +95,7 @@ req(
   undefined,
   "player_token",
   [
-    "const d=pm.response.json().departments[0];pm.environment.set('department_id',d.id);pm.test('Eight disciplines',()=>pm.expect(pm.response.json().departments.length).to.eql(8));",
+    "const d=pm.response.json().departments[0];pm.environment.set('department_id',d.id);pm.environment.set('department_code',d.code);pm.test('Eight disciplines',()=>pm.expect(pm.response.json().departments.length).to.eql(8));",
   ],
 );
 req(
@@ -133,7 +133,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   403,
-  { questionId: "{{q1}}", optionIds: ["{{choice1}}"], reason: "postman reason" },
+  {
+    questionId: "{{q1}}",
+    optionIds: ["{{choice1}}"],
+    reason: "postman reason",
+  },
   "player_token",
 );
 req(
@@ -157,7 +161,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   400,
-  { questionId: "{{q2}}", optionIds: ["{{choice2}}"], reason: "postman reason" },
+  {
+    questionId: "{{q2}}",
+    optionIds: ["{{choice2}}"],
+    reason: "postman reason",
+  },
   "player_token",
 );
 req(
@@ -165,7 +173,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   200,
-  { questionId: "{{q1}}", optionIds: ["{{choice1}}"], reason: "postman reason" },
+  {
+    questionId: "{{q1}}",
+    optionIds: ["{{choice1}}"],
+    reason: "postman reason",
+  },
   "player_token",
   [
     "pm.test('Auto-advanced to Q2',()=>pm.expect(pm.response.json().state.unlockedQuestion).to.eql(2));",
@@ -176,7 +188,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   409,
-  { questionId: "{{q1}}", optionIds: ["{{choice1}}"], reason: "postman reason" },
+  {
+    questionId: "{{q1}}",
+    optionIds: ["{{choice1}}"],
+    reason: "postman reason",
+  },
   "player_token",
 );
 req(
@@ -192,7 +208,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   200,
-  { questionId: "{{q2}}", optionIds: ["{{choice2}}"], reason: "postman reason" },
+  {
+    questionId: "{{q2}}",
+    optionIds: ["{{choice2}}"],
+    reason: "postman reason",
+  },
   "player_token",
   [
     "pm.test('Auto-advanced to Q3',()=>pm.expect(pm.response.json().state.unlockedQuestion).to.eql(3));",
@@ -203,7 +223,11 @@ req(
   "POST",
   "/api/departments/{{department_id}}/answer",
   200,
-  { questionId: "{{q3}}", optionIds: ["{{choice3}}"], reason: "postman reason" },
+  {
+    questionId: "{{q3}}",
+    optionIds: ["{{choice3}}"],
+    reason: "postman reason",
+  },
   "player_token",
   [
     "pm.test('Discipline complete',()=>pm.expect(pm.response.json().state.status).to.eql('completed')); ",
@@ -229,6 +253,66 @@ req(
   "admin_token",
   [
     "pm.test('Top 10 flags are correct',()=>pm.response.json().leaderboard.forEach(r=>pm.expect(r.isTop).to.eql(r.rank<=10))); ",
+  ],
+);
+req(
+  "Player cannot reset a discipline",
+  "POST",
+  "/api/admin/departments/{{department_id}}/reset",
+  403,
+  { confirm: "{{department_code}}" },
+  "player_token",
+);
+req(
+  "Discipline reset requires its exact code",
+  "POST",
+  "/api/admin/departments/{{department_id}}/reset",
+  400,
+  { confirm: "WRONG" },
+  "admin_token",
+);
+req(
+  "Organizer resets this discipline only",
+  "POST",
+  "/api/admin/departments/{{department_id}}/reset",
+  200,
+  { confirm: "{{department_code}}" },
+  "admin_token",
+  [
+    "const r=pm.response.json();pm.test('Three answers removed for one team',()=>{pm.expect(r.deletedAnswers).to.eql(3);pm.expect(r.teams).to.eql(1)});pm.test('Gate and clock reset',()=>{pm.expect(r.department.isQ1Unlocked).to.eql(false);pm.expect(r.department.q1UnlockedAt).to.eql(null)});",
+  ],
+);
+req(
+  "Reset returns player to the locked lobby",
+  "GET",
+  "/api/departments/{{department_id}}/state",
+  200,
+  undefined,
+  "player_token",
+  [
+    "const s=pm.response.json();pm.test('No saved answers or running timer',()=>{pm.expect(s.status).to.eql('locked');pm.expect(s.answered).to.eql(0);pm.expect(s.timer).to.eql(null);pm.expect(s.question).to.eql(null)});",
+  ],
+);
+req(
+  "Reset recalculates standings",
+  "GET",
+  "/api/admin/leaderboard",
+  200,
+  undefined,
+  "admin_token",
+  [
+    "const team=pm.response.json().leaderboard.find(t=>t.id===pm.environment.get('player_id'));pm.test('Team retained with zero score and progress',()=>{pm.expect(team.answered).to.eql(0);pm.expect(team.totalPoints).to.eql(0)});",
+  ],
+);
+req(
+  "Original team code still signs in after reset",
+  "POST",
+  "/api/auth/team",
+  200,
+  { teamNumber: 1, code: "{{team_code}}" },
+  undefined,
+  [
+    "pm.test('Same team identity',()=>pm.expect(pm.response.json().user.id).to.eql(pm.environment.get('player_id')));",
   ],
 );
 await Bun.write(

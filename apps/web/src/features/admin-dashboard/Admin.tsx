@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useId, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -59,11 +59,25 @@ export function Admin() {
     refetchInterval: 5000,
   });
   const refreshAll = () => {
-    for (const key of ["overview", "leaderboard", "participants"])
+    for (const key of [
+      "overview",
+      "leaderboard",
+      "participants",
+      "team-answers",
+    ])
       cache.invalidateQueries({ queryKey: [key] });
   };
   const start = useMutation({ mutationFn: api.start, onSuccess: refreshAll });
   const stop = useMutation({ mutationFn: api.stop, onSuccess: refreshAll });
+  const [resetId, setResetId] = useState<string | null>(null);
+  const resetDept = useMutation({
+    mutationFn: api.resetDepartment,
+    onSuccess: () => {
+      setResetId(null);
+      refreshAll();
+    },
+  });
+  const gatesBusy = start.isPending || stop.isPending || resetDept.isPending;
   if (isPending) return <Loading />;
   if (!user) return <SignInPrompt next="/admin" />;
   if (!isAdmin)
@@ -102,6 +116,13 @@ export function Admin() {
     : stop.isPending
       ? stop.variables
       : null;
+  const gates = overview.data?.departments ?? [];
+  const answersIn = (d: (typeof gates)[number]) =>
+    d.perQuestion.reduce((sum, n) => sum + n, 0);
+  // Decisions build on each other, so a discipline with answered ones after it stays sealed.
+  const sealed = (order: number) =>
+    gates.some((d) => d.displayOrder > order && answersIn(d) > 0);
+  const resetTarget = gates.find((d) => d.id === resetId);
   return (
     <>
       <div className="page-heading">
@@ -236,7 +257,7 @@ export function Admin() {
                           </span>
                           <button
                             className="button small secondary"
-                            disabled={busyId !== null || phase !== "qualifier"}
+                            disabled={gatesBusy || phase !== "qualifier"}
                             onClick={() => stop.mutate(d.id)}
                           >
                             <Pause size={13} />
@@ -254,7 +275,7 @@ export function Admin() {
                           )}
                           <button
                             className="button small primary"
-                            disabled={busyId !== null || phase !== "qualifier"}
+                            disabled={gatesBusy || phase !== "qualifier"}
                             onClick={() => start.mutate(d.id)}
                           >
                             <Play size={13} />
@@ -266,13 +287,64 @@ export function Admin() {
                           </button>
                         </>
                       )}
+                      <button
+                        className="button small danger"
+                        disabled={
+                          gatesBusy ||
+                          phase !== "qualifier" ||
+                          (!d.q1UnlockedAt && answersIn(d) === 0) ||
+                          sealed(d.displayOrder)
+                        }
+                        aria-label={t(`รีเซ็ตสาขา${d.nameTh}`, `Reset ${d.name}`)}
+                        title={
+                          sealed(d.displayOrder)
+                            ? t(
+                                "รีเซ็ตสาขาที่อยู่ถัดไปก่อน",
+                                "Reset the later disciplines first",
+                              )
+                            : undefined
+                        }
+                        onClick={() => setResetId(d.id)}
+                      >
+                        <RotateCcw size={13} />
+                        {t("รีเซ็ต", "Reset")}
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
+            <p className="gate-reset-hint">
+              {t(
+                "รีเซ็ตจะลบคำตอบของสาขานั้นทุกทีม หากสาขาถัดไปมีคำตอบแล้ว ให้รีเซ็ตย้อนจากสาขาสุดท้ายก่อน",
+                "Reset clears this discipline’s answers for every team. If later disciplines have answers, reset those first, working backwards from the last one.",
+              )}
+            </p>
             {start.error && <ErrorState error={start.error} />}
             {stop.error && <ErrorState error={stop.error} />}
+            <ConfirmDialog
+              open={!!resetTarget}
+              title={t(
+                `รีเซ็ตสาขา${resetTarget?.nameTh ?? ""}?`,
+                `Reset ${resetTarget?.name ?? ""}?`,
+              )}
+              body={t(
+                `ลบคำตอบ เหตุผล และคะแนนของสาขานี้ทุกทีม (${resetTarget ? answersIn(resetTarget) : 0} คำตอบ) แล้วปิดสาขากลับไปที่ “เริ่มข้อ 1” คำตอบของสาขาอื่น ทีม และรหัสทีมยังอยู่ ย้อนกลับไม่ได้`,
+                `Deletes every team’s answers, reasons and points for this discipline (${resetTarget ? answersIn(resetTarget) : 0} answers) and returns it to “Start Q1”. Other disciplines, teams and codes are kept. This cannot be undone.`,
+              )}
+              typed={resetTarget?.code}
+              confirmLabel={t("รีเซ็ตสาขานี้", "Reset this discipline")}
+              pending={resetDept.isPending}
+              error={resetDept.error}
+              onConfirm={() =>
+                resetTarget &&
+                resetDept.mutate({ id: resetTarget.id, code: resetTarget.code })
+              }
+              onClose={() => {
+                setResetId(null);
+                resetDept.reset();
+              }}
+            />
           </section>
           <section className="standings-panel">
             <div className="section-heading">
@@ -343,6 +415,7 @@ function ConfirmDialog({
 }) {
   const t = useText();
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const [value, setValue] = useState("");
   useEffect(() => {
     if (open) {
@@ -353,11 +426,14 @@ function ConfirmDialog({
   return (
     <dialog
       ref={ref}
-      onCancel={onClose}
-      aria-labelledby="confirm-title"
+      onCancel={(event) => {
+        if (pending) event.preventDefault();
+        else onClose();
+      }}
+      aria-labelledby={titleId}
       className="unlock-dialog confirm-dialog"
     >
-      <h2 id="confirm-title">{title}</h2>
+      <h2 id={titleId}>{title}</h2>
       <p>{body}</p>
       {typed && (
         <label className="typed-confirm">
@@ -372,7 +448,12 @@ function ConfirmDialog({
       )}
       {Boolean(error) && <ErrorState error={error} />}
       <div>
-        <button autoFocus className="button secondary" onClick={onClose}>
+        <button
+          autoFocus
+          className="button secondary"
+          disabled={pending}
+          onClick={onClose}
+        >
           {t("ยกเลิก", "Cancel")}
         </button>
         <button
@@ -458,7 +539,10 @@ function PhasePanel({
       </div>
       <ConfirmDialog
         open={dialog === "final"}
-        title={t("ประกาศ Top 10 และเปิด Final?", "Announce Top 10 and open the Final?")}
+        title={t(
+          "ประกาศ Top 10 และเปิด Final?",
+          "Announce Top 10 and open the Final?",
+        )}
         body={t(
           "ระบบจะล็อก 10 ทีมคะแนนสูงสุดเป็น Finalist ปิดรับคำตอบรอบคัดเลือก และเปิดโจทย์ Final Business Crisis (3 นาที) ให้ทุกทีม ทีมอื่นตอบได้แบบ Audience Challenge โดยไม่กระทบผล",
           "The top 10 become finalists, the qualifier closes, and the 3-minute Final Business Crisis opens to every team. Non-finalists can answer as an audience challenge without affecting results.",
@@ -768,8 +852,8 @@ function TeamAnswersView({ id }: { id: string }) {
           <div>
             <strong>
               Final Business Crisis
-              {!data.final.isFinalist && " · Audience"} · fit{" "}
-              {data.final.fit} / 20
+              {!data.final.isFinalist && " · Audience"} · fit {data.final.fit} /
+              20
             </strong>
             <p>
               <b>{data.final.choice}</b> — “{data.final.reason}”
@@ -780,13 +864,7 @@ function TeamAnswersView({ id }: { id: string }) {
     </ol>
   );
 }
-function Standings({
-  rankings,
-  phase,
-}: {
-  rankings: Ranking[];
-  phase: Phase;
-}) {
+function Standings({ rankings, phase }: { rankings: Ranking[]; phase: Phase }) {
   const t = useText();
   const final = phase !== "qualifier";
   return rankings.length ? (
@@ -910,7 +988,10 @@ function Presentation({
           <h1>
             {phase === "qualifier"
               ? t("10 ทีมที่คะแนนนำ", "The top 10 teams")
-              : t("FINAL BUSINESS BATTLE · TOP 10", "FINAL BUSINESS BATTLE · TOP 10")}
+              : t(
+                  "FINAL BUSINESS BATTLE · TOP 10",
+                  "FINAL BUSINESS BATTLE · TOP 10",
+                )}
           </h1>
           <p>
             {phase === "qualifier"
@@ -953,10 +1034,14 @@ function Presentation({
           const r = rankings[i];
           return (
             <li key={r?.id ?? i}>
-              <span className="podium-rank">{String(i + 1).padStart(2, "0")}</span>
+              <span className="podium-rank">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <div>
                 <span className="finalist-team">
-                  {r ? `TEAM ${String(r.teamNumber).padStart(3, "0")}` : t("รอทีม", "AWAITING")}
+                  {r
+                    ? `TEAM ${String(r.teamNumber).padStart(3, "0")}`
+                    : t("รอทีม", "AWAITING")}
                 </span>
                 <h2>{r?.fullName ?? "—"}</h2>
               </div>

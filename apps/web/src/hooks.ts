@@ -35,6 +35,7 @@ export function useRealtime() {
       cache.invalidateQueries({ queryKey: ["quiz"] });
       cache.invalidateQueries({ queryKey: ["overview"] });
       cache.invalidateQueries({ queryKey: ["participants"] });
+      cache.invalidateQueries({ queryKey: ["team-answers"] });
     };
     source.addEventListener("CONNECTED", () => {
       setConnected(true);

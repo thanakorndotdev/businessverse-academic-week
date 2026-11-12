@@ -14,7 +14,7 @@ Open **http://localhost:8080**. Docker serves the production web app, an interna
 
 `bun run setup` creates a private, ignored `.env` with generated credentials. Organizer sign-in is at **http://localhost:8080/join?next=/admin** (the *Organizer* tab). Use `ADMIN_EMAIL` and `ADMIN_PASSWORD` from your local `.env`. Setup and seeds never overwrite existing credentials.
 
-Teams do not self-register. In the control center, open **Teams, codes & reasoning**, enter the number of teams (default 150) and select **Create teams**. Each team gets a random six-character access code; download the CSV to print and hand out codes. Players choose their team number on the sign-in screen and enter the code; teammates share one code. **New code** invalidates a lost code. Teams can rename themselves from their passport. No demo accounts or fabricated leaderboard entries are added.
+Teams do not self-register. In the control center, open **Teams, codes & reasoning**, enter the number of teams (default 150) and select **Create teams**. Each team gets a random six-character access code; download the CSV to print and hand out codes. Players choose their team number on the sign-in screen and enter the code; teammates share one code. Codes are permanent: nothing in the app reissues a team's code, so they can be printed and fixed to each team's seat. Teams can rename themselves from their passport. No demo accounts or fabricated leaderboard entries are added.
 
 To supply your own configuration, copy `.env.example` to `.env` and replace the placeholders. Use a URL-safe database password. `JWT_SECRET` needs at least 32 characters; the organizer password needs at least 12. Set `APP_URL` to the actual origin before deploying; build-time SEO metadata uses that origin. For network access set `WEB_BIND` explicitly, configure a TLS reverse proxy, and rebuild. The database and API remain internal.
 
@@ -59,6 +59,8 @@ bun run db:seed
 Migrations are committed SQL under `apps/api/drizzle`. The runtime migrator applies only pending migrations before startup. Seeds insert missing reference content and preserve existing answers, gates and organizer passwords.
 
 ## Verification
+
+Each discipline in **Mission start controls** has its own **Reset** button. Type its displayed code to confirm: this removes that discipline’s answers and reasons for every team, recalculates scores, and closes its gate. Start Q1 again to give teams a fresh 3-minute window. Teams, names, targets, access codes and other disciplines’ answers remain. Reset is available only during the qualifier; if later disciplines have answers, reset those first, working backwards from the last discipline.
 
 The integration suite uses **only `businessverse_test`**, a separate disposable database. Create it once after the app database becomes healthy:
 

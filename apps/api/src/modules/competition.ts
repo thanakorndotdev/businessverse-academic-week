@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import {
   users,
@@ -18,14 +18,10 @@ import {
   finalScenario,
   objectiveForTeam,
   objectives,
+  simulate,
   type ObjectiveId,
 } from "../game/engine";
-import {
-  ApiError,
-  getCompetition,
-  leaderboard,
-  type User,
-} from "./game";
+import { ApiError, getCompetition, leaderboard, type User } from "./game";
 
 // Unambiguous characters only: no 0/O, 1/I/L.
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -232,14 +228,12 @@ export async function resetCompetition() {
   await db.transaction(async (tx) => {
     await tx.delete(finalAnswers);
     await tx.delete(userAnswers);
-    await tx
-      .update(users)
-      .set({
-        totalPoints: 0,
-        finalPoints: 0,
-        finalistRank: null,
-        lastSubmissionAt: null,
-      });
+    await tx.update(users).set({
+      totalPoints: 0,
+      finalPoints: 0,
+      finalistRank: null,
+      lastSubmissionAt: null,
+    });
     await tx
       .update(departments)
       .set({ isQ1Unlocked: false, q1UnlockedAt: null });
@@ -249,6 +243,85 @@ export async function resetCompetition() {
       .where(eq(competition.id, 1));
   });
   return { reset: true };
+}
+
+/**
+ * Rewinds one discipline to "not started": deletes every team's answers for
+ * it, re-scores those teams from their remaining decisions and closes its gate.
+ * Decisions carry company state forward, so a discipline can only be reset
+ * while no later discipline has answers.
+ */
+export async function resetDepartment(id: string, confirm: string) {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select 1 from competition where id = 1 for update`);
+    if ((await getCompetition(tx)).phase !== "qualifier")
+      throw new ApiError(409, "รีเซ็ตรายสาขาได้เฉพาะช่วงรอบคัดเลือก");
+    const [dept] = await tx
+      .select()
+      .from(departments)
+      .where(eq(departments.id, id));
+    if (!dept) throw new ApiError(404, "ไม่พบสาขานี้");
+    if (confirm.trim() !== dept.code)
+      throw new ApiError(400, `พิมพ์ ${dept.code} เพื่อยืนยันการรีเซ็ตสาขานี้`);
+    // Submissions and timeouts hold their team's row lock, so none is in
+    // flight once every team row is locked here.
+    const teams = await tx
+      .select()
+      .from(users)
+      .where(eq(users.role, "attendee"))
+      .orderBy(asc(users.id))
+      .for("update");
+    const later = await tx
+      .selectDistinct({
+        nameTh: departments.nameTh,
+        displayOrder: departments.displayOrder,
+      })
+      .from(userAnswers)
+      .innerJoin(departments, eq(departments.id, userAnswers.departmentId))
+      .where(gt(departments.displayOrder, dept.displayOrder))
+      .orderBy(asc(departments.displayOrder));
+    if (later.length)
+      throw new ApiError(
+        409,
+        `ต้องรีเซ็ตสาขาที่อยู่ถัดไปก่อน: ${later.map((d) => d.nameTh).join(", ")}`,
+      );
+    const removed = await tx
+      .delete(userAnswers)
+      .where(eq(userAnswers.departmentId, dept.id))
+      .returning({ userId: userAnswers.userId });
+    const affected = new Set(removed.map((r) => r.userId));
+    const remaining = affected.size
+      ? await tx
+          .select({
+            userId: userAnswers.userId,
+            optionIds: userAnswers.optionIds,
+            stage: sql<number>`(${departments.displayOrder} - 1) * 3 + ${userAnswers.questionNumber}`,
+          })
+          .from(userAnswers)
+          .innerJoin(departments, eq(departments.id, userAnswers.departmentId))
+          .where(inArray(userAnswers.userId, [...affected]))
+      : [];
+    for (const team of teams) {
+      if (!affected.has(team.id)) continue;
+      const kept = remaining.filter((a) => a.userId === team.id);
+      await tx
+        .update(users)
+        .set({
+          totalPoints: kept.length
+            ? simulate(team.objectiveId as ObjectiveId, kept).total
+            : 0,
+          // Preserve PostgreSQL's timestamp precision for ranking tie-breaks.
+          lastSubmissionAt: sql`(select max(${userAnswers.answeredAt}) from ${userAnswers} where ${userAnswers.userId} = ${team.id})`,
+        })
+        .where(eq(users.id, team.id));
+    }
+    const [department] = await tx
+      .update(departments)
+      .set({ isQ1Unlocked: false, q1UnlockedAt: null })
+      .where(eq(departments.id, dept.id))
+      .returning();
+    return { department, deletedAnswers: removed.length, teams: affected.size };
+  });
 }
 
 const finalWindow = (openedAt: Date | null) =>
@@ -301,7 +374,11 @@ export async function finalStateFor(user: User) {
   };
 }
 
-export async function submitFinal(user: User, optionId: string, reason: string) {
+export async function submitFinal(
+  user: User,
+  optionId: string,
+  reason: string,
+) {
   const clean = reason.trim();
   if (clean.length < 3)
     throw new ApiError(400, "กรุณาเขียนเหตุผลของทีมอย่างน้อย 3 ตัวอักษร");

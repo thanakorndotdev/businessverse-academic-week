@@ -2029,6 +2029,7 @@ button {
 .gate-row {
   padding: 17px 0;
   display: flex;
+  flex-wrap: wrap;
   gap: 13px;
   align-items: center;
   border-top: 1px solid #e5e9df;
@@ -2042,6 +2043,12 @@ button {
 .gate-name {
   flex: 1;
   min-width: 0;
+}
+.gate-reset-hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
 }
 .gate-name h3 {
   font-size: 12px;

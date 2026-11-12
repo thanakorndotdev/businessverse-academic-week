@@ -27,6 +27,7 @@ import {
   openFinal,
   closeCompetition,
   resetCompetition,
+  resetDepartment,
   finalStateFor,
   submitFinal,
 } from "./modules/competition";
@@ -327,6 +328,23 @@ export const app = new Elysia()
       return { department };
     },
     { params: t.Object({ id: t.String({ format: "uuid" }) }) },
+  )
+  .post(
+    "/api/admin/departments/:id/reset",
+    async ({ user, params, body }) => {
+      requireAdmin(user);
+      const result = await resetDepartment(params.id, body.confirm);
+      broadcast("DEPT_Q1_UNLOCKED", {
+        departmentId: result.department.id,
+        open: false,
+      });
+      broadcast("SCOREBOARD_UPDATED", { at: Date.now() });
+      return result;
+    },
+    {
+      params: t.Object({ id: t.String({ format: "uuid" }) }),
+      body: t.Object({ confirm: t.String({ minLength: 1, maxLength: 16 }) }),
+    },
   )
   .get("/api/admin/questions", async ({ user }) => {
     requireAdmin(user);

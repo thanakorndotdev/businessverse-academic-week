@@ -96,8 +96,11 @@ export const api = {
     read<{ leaderboard: Ranking[] }>(client.api.admin.leaderboard.get()),
   start: (id: string) =>
     read(client.api.admin.departments({ id })["start-q1"].post()),
-  stop: (id: string) =>
-    read(client.api.admin.departments({ id }).stop.post()),
+  stop: (id: string) => read(client.api.admin.departments({ id }).stop.post()),
+  resetDepartment: ({ id, code }: { id: string; code: string }) =>
+    read<{ deletedAnswers: number; teams: number }>(
+      client.api.admin.departments({ id }).reset.post({ confirm: code }),
+    ),
   participants: () =>
     read<{ participants: AdminTeam[] }>(client.api.admin.participants.get()),
   generateTeams: (count: number) =>

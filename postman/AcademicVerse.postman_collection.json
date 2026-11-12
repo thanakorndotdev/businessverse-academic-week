@@ -198,7 +198,7 @@
             "exec": [
               "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
               "pm.test('JSON response',()=>pm.response.to.be.json);",
-              "const d=pm.response.json().departments[0];pm.environment.set('department_id',d.id);pm.test('Eight disciplines',()=>pm.expect(pm.response.json().departments.length).to.eql(8));"
+              "const d=pm.response.json().departments[0];pm.environment.set('department_id',d.id);pm.environment.set('department_code',d.code);pm.test('Eight disciplines',()=>pm.expect(pm.response.json().departments.length).to.eql(8));"
             ]
           }
         }
@@ -715,6 +715,226 @@
               "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
               "pm.test('JSON response',()=>pm.response.to.be.json);",
               "pm.test('Top 10 flags are correct',()=>pm.response.json().leaderboard.forEach(r=>pm.expect(r.isTop).to.eql(r.rank<=10))); "
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player cannot reset a discipline",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/reset",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"confirm\":\"{{department_code}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Discipline reset requires its exact code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/reset",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"confirm\":\"WRONG\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer resets this discipline only",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/reset",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"confirm\":\"{{department_code}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const r=pm.response.json();pm.test('Three answers removed for one team',()=>{pm.expect(r.deletedAnswers).to.eql(3);pm.expect(r.teams).to.eql(1)});pm.test('Gate and clock reset',()=>{pm.expect(r.department.isQ1Unlocked).to.eql(false);pm.expect(r.department.q1UnlockedAt).to.eql(null)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reset returns player to the locked lobby",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/state"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const s=pm.response.json();pm.test('No saved answers or running timer',()=>{pm.expect(s.status).to.eql('locked');pm.expect(s.answered).to.eql(0);pm.expect(s.timer).to.eql(null);pm.expect(s.question).to.eql(null)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reset recalculates standings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/leaderboard"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "const team=pm.response.json().leaderboard.find(t=>t.id===pm.environment.get('player_id'));pm.test('Team retained with zero score and progress',()=>{pm.expect(team.answered).to.eql(0);pm.expect(team.totalPoints).to.eql(0)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Original team code still signs in after reset",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/auth/team",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"teamNumber\":1,\"code\":\"{{team_code}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('JSON response',()=>pm.response.to.be.json);",
+              "pm.test('Same team identity',()=>pm.expect(pm.response.json().user.id).to.eql(pm.environment.get('player_id')));"
             ]
           }
         }
