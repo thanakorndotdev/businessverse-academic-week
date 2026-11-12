@@ -60,6 +60,16 @@ services:
       timeout: 5s
       retries: 10
     networks: [app]
+  tunnel:
+    image: cloudflare/cloudflared:2026.7.3
+    profiles: [tunnel]
+    restart: unless-stopped
+    command: [tunnel, --no-autoupdate, --url, "http://web:80", run]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      web: { condition: service_healthy }
+    networks: [app]
   test-api:
     extends:
       service: api
