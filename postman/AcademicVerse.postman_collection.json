@@ -939,6 +939,649 @@
           }
         }
       ]
+    },
+    {
+      "name": "Final unavailable during qualifier",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('No Final question before opening',()=>pm.expect(pm.response.json().question).to.eql(null));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reopen Q1 to qualify team 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/departments/{{department_id}}/start-q1",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 200',()=>pm.response.to.have.status(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team 1 records qualifying decision",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/departments/{{department_id}}/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"questionId\": \"{{q1}}\", \"optionIds\": [\"{{choice1}}\"], \"reason\": \"qualifying for Final\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 200',()=>pm.response.to.have.status(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create audience team 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/teams/generate",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"count\": 2}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.environment.set('audience_code',pm.response.json().participants.find(t=>t.teamNumber===2).accessCode);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audience team signs in",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/auth/team",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"teamNumber\": 2, \"code\": \"{{audience_code}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.environment.set('audience_token',pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player cannot open Final",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/final/open",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 403',()=>pm.response.to.have.status(403));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer opens the integrated Final",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/final/open",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Only team with qualifier progress becomes finalist',()=>pm.expect(pm.response.json().finalists).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shared crisis has eight sections and no answer key",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "const f=pm.response.json();pm.test('Eight disciplines, shared budget and company state',()=>{pm.expect(f.question.sections.length).to.eql(8);pm.expect(f.question.budget).to.eql(300000);pm.expect(f.companyState).to.have.property('cash');pm.expect(f.timer.seconds).to.eql(180)});",
+              "pm.test('Options expose descriptions and Coins only',()=>{for(const s of f.question.sections)for(const o of s.options)pm.expect(Object.keys(o).sort()).to.eql(['benefit','coins','id','title','tradeoff'])});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Final rejects missing discipline",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 400',()=>pm.response.to.have.status(400));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Final rejects duplicate discipline",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"management\", \"optionId\": \"stabilize\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 400',()=>pm.response.to.have.status(400));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Final rejects overspending",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"arena\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"launch\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"finance\", \"optionId\": \"weekly\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 400',()=>pm.response.to.have.status(400));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Final rejects empty rationale",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"finance\", \"optionId\": \"credit\"}], \"reason\": \"   \"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 400',()=>pm.response.to.have.status(400));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Finalist submits eight linked decisions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"finance\", \"optionId\": \"credit\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Saved plan has eight choices but no score',()=>{const s=pm.response.json().saved;pm.expect(s.selections.length).to.eql(8);pm.expect(s).not.to.have.property('fit');pm.expect(s).not.to.have.property('assessment');pm.expect(s).not.to.have.property('total')});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Final cannot be resubmitted",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"finance\", \"optionId\": \"credit\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 409',()=>pm.response.to.have.status(409));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audience submits same shared crisis",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{audience_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/final/answer",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"selections\": [{\"sectionId\": \"management\", \"optionId\": \"stabilize\"}, {\"sectionId\": \"marketing\", \"optionId\": \"retain\"}, {\"sectionId\": \"esport\", \"optionId\": \"community\"}, {\"sectionId\": \"digitalMarketing\", \"optionId\": \"context\"}, {\"sectionId\": \"innovation\", \"optionId\": \"contain\"}, {\"sectionId\": \"international\", \"optionId\": \"pilot\"}, {\"sectionId\": \"logistics\", \"optionId\": \"dual\"}, {\"sectionId\": \"finance\", \"optionId\": \"credit\"}], \"reason\": \"Restore quality and trust before scaling, with cash reserves.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Audience answer saved',()=>{const f=pm.response.json();pm.expect(f.isFinalist).to.eql(false);pm.expect(f.saved.selections.length).to.eql(8)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Only finalist Final score affects standings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/leaderboard"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Finalist adds 20, audience adds zero',()=>{const b=pm.response.json().leaderboard;const f=b.find(t=>t.teamNumber===1),a=b.find(t=>t.teamNumber===2);pm.expect(f.finalPoints).to.eql(20);pm.expect(f.totalPoints).to.be.closeTo(f.qualifierPoints+20,0.0001);pm.expect(a.totalPoints).to.eql(0);pm.expect(a.finalPoints).to.eql(0)});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer can inspect deterministic rubric",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/participants/{{player_id}}/answers"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Persisted breakdown is 16 plus 4 with original company state',()=>{const f=pm.response.json().final;pm.expect(f.selections.length).to.eql(8);pm.expect(f.assessment.disciplinePoints).to.eql(16);pm.expect(f.assessment.planPoints).to.eql(4);pm.expect(f.assessment.total).to.eql(20);pm.expect(f.assessment.version).to.eql('perfect-storm-v1');pm.expect(f.assessment.companyState).to.have.property('risk')});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team cannot read organizer rubric",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{player_token}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{base_url}}/api/admin/participants/{{player_id}}/answers"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('HTTP 403',()=>pm.response.to.have.status(403));"]
+          }
+        }
+      ]
     }
   ]
 }

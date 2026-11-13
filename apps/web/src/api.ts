@@ -76,8 +76,10 @@ export const api = {
   competition: () =>
     read<{ phase: Phase; finalistCount: number }>(client.api.competition.get()),
   final: () => read<FinalState>(client.api.final.get()),
-  finalAnswer: (body: { optionId: string; reason: string }) =>
-    read<FinalState>(client.api.final.answer.post(body)),
+  finalAnswer: (body: {
+    selections: { sectionId: string; optionId: string }[];
+    reason: string;
+  }) => read<FinalState>(client.api.final.answer.post(body)),
   logout: () => read(client.api.auth.logout.post()),
   departments: () =>
     read<{ departments: Department[] }>(client.api.departments.get()),

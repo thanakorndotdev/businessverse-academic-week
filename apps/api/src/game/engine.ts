@@ -37,17 +37,6 @@ export const FINALIST_COUNT = 10;
 export const QUALIFIER_MAX = 80;
 /** Final Business Crisis is scored out of 20. */
 export const FINAL_MAX = 20;
-export const finalOptions = data.finalOptions as (DecisionOption & {
-  fit: Record<ObjectiveId, number>;
-})[];
-export const finalScenario = {
-  title: "THE PERFECT STORM",
-  scenario:
-    "เศรษฐกิจชะลอตัว ต้นทุนการเงินและโลจิสติกส์สูงขึ้น ลูกค้าใช้จ่ายลดลง ขณะเดียวกันธุรกิจเผชิญความเสี่ยงด้านข้อมูล แต่ยังมีโอกาสจากตลาดใหม่ ทีมจะใช้แผนใดนำธุรกิจผ่าน 12 เดือนข้างหน้า",
-};
-/** Final score for one plan: its strategic fit for the team's target, capped at 20. */
-export const finalFit = (objective: ObjectiveId, optionId: string) =>
-  Math.min(FINAL_MAX, finalOptions.find((o) => o.id === optionId)?.fit[objective] ?? 0);
 /** Seconds each question stays open. */
 export const QUESTION_SECONDS = 180;
 /** Network grace after the visible deadline before the server records a timeout. */

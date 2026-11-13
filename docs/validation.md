@@ -38,4 +38,4 @@ See [debug-ledger.md](debug-ledger.md). A Postman test initially used a GUID-bas
 
 ## Scope boundaries
 
-This is the requested Bun/Elysia/PostgreSQL Docker application, running locally at http://localhost:8080. It was not published to a public host. Actual event dates and venue were not supplied. The builder's 24-decision qualifier, organizer-only Top 4 scoreboard and fullscreen presentation are implemented. The reference's separate final-crisis round data is retained for extension; that additional final-round workflow is not implemented.
+This is the requested Bun/Elysia/PostgreSQL Docker application, running locally at http://localhost:8080. It was not published to a public host. Actual event dates and venue were not supplied. The builder's 24-decision qualifier, organizer-only Top 4 scoreboard and fullscreen presentation are implemented. The separate Final has since been implemented and replaced by the eight-discipline Perfect Storm plan; see [Final validation](final-crisis.md) for the current behavior and checks. The older sections above record earlier work.

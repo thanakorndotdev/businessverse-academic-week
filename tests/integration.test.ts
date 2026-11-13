@@ -48,6 +48,9 @@ const call = async (
 describe.skipIf(!enabled)(
   "Database + real Elysia route integration (isolated businessverse_test)",
   () => {
+    // Older local Bun versions register hooks even inside a skipped suite.
+    // Register DB hooks only in the explicitly enabled integration runtime.
+    if (!enabled) return;
     beforeAll(async () => {
       if (!process.env.DATABASE_URL?.includes("/businessverse_test"))
         throw Error("Refusing to reset a non-test database");
@@ -589,33 +592,127 @@ describe.skipIf(!enabled)(
       expect(f.isFinalist).toBe(true);
       expect(f.open).toBe(true);
       expect(f.timer.seconds).toBe(180);
-      expect(f.question.options[0].fit).toBeUndefined();
-      expect(f.question.options[0].effect).toBeUndefined();
+      expect(f.question.sections).toHaveLength(8);
+      for (const section of f.question.sections)
+        for (const option of section.options) {
+          expect(Object.keys(option).sort()).toEqual([
+            "benefit",
+            "coins",
+            "id",
+            "title",
+            "tradeoff",
+          ]);
+        }
+      const selections = [
+        ["management", "stabilize"],
+        ["marketing", "retain"],
+        ["esport", "community"],
+        ["digitalMarketing", "context"],
+        ["innovation", "contain"],
+        ["international", "pilot"],
+        ["logistics", "dual"],
+        ["finance", "credit"],
+      ].map(([sectionId, optionId]) => ({ sectionId, optionId }));
+      const body = {
+        selections,
+        reason: "stabilize first, controlled growth with reserves",
+      };
+      expect(
+        (
+          await call(
+            "/api/final/answer",
+            { ...body, selections: selections.slice(1) },
+            playerToken,
+          )
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await call(
+            "/api/final/answer",
+            { ...body, selections: [...selections.slice(0, 7), selections[0]] },
+            playerToken,
+          )
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await call(
+            "/api/final/answer",
+            {
+              ...body,
+              selections: selections.map((s, i) =>
+                i === 0 ? { ...s, optionId: "contain" } : s,
+              ),
+            },
+            playerToken,
+          )
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (await call("/api/final/answer", body, adminToken)).response.status,
+      ).toBe(403);
+      const overspend = selections.map((s) => ({
+        ...s,
+        optionId:
+          s.sectionId === "international"
+            ? "launch"
+            : s.sectionId === "esport"
+              ? "arena"
+              : s.sectionId === "finance"
+                ? "weekly"
+                : s.optionId,
+      }));
+      expect(
+        (
+          await call(
+            "/api/final/answer",
+            { ...body, selections: overspend },
+            playerToken,
+          )
+        ).response.status,
+      ).toBe(400);
       // Qualifier closes when the Final opens.
       const t3 = await teamToken(3);
       const s3 = (
         await call(`/api/departments/${departments[0].id}/state`, undefined, t3)
       ).data;
       expect(s3.status).toBe("closed");
-      const saved = await call(
-        "/api/final/answer",
-        { optionId: "protect", reason: "keep cash safe" },
-        playerToken,
+      // An overdue plan is rejected without writing an answer or awarding points.
+      await sqlClient`update competition set final_opened_at = now() - interval '4 minutes' where id = 1`;
+      expect((await call("/api/final", undefined, playerToken)).data.open).toBe(
+        false,
       );
+      expect(
+        (await call("/api/final/answer", body, playerToken)).response.status,
+      ).toBe(409);
+      expect(
+        (await sqlClient`select count(*)::int as n from final_answers`)[0].n,
+      ).toBe(0);
+      await sqlClient`update competition set final_opened_at = now() where id = 1`;
+      const attempts = await Promise.all([
+        call("/api/final/answer", body, playerToken),
+        call("/api/final/answer", body, playerToken),
+      ]);
+      expect(attempts.map((a) => a.response.status).sort()).toEqual([200, 409]);
+      const saved = attempts.find((a) => a.response.status === 200)!;
       expect(saved.response.status).toBe(200);
-      expect(saved.data.saved.optionId).toBe("protect");
+      expect(saved.data.saved.selections).toEqual(selections);
+      expect(saved.data.saved.assessment).toBeUndefined();
+      expect(saved.data.saved.fit).toBeUndefined();
+      expect(saved.data.saved.total).toBeUndefined();
       expect(
         (
           await call(
             "/api/final/answer",
-            { optionId: "transform", reason: "second try" },
+            { ...body, reason: "second try" },
             playerToken,
           )
         ).response.status,
       ).toBe(409);
       const audience = await call(
         "/api/final/answer",
-        { optionId: "selective", reason: "audience view" },
+        { ...body, reason: "audience view" },
         t3,
       );
       expect(audience.response.status).toBe(200);
@@ -624,9 +721,20 @@ describe.skipIf(!enabled)(
         await call("/api/admin/leaderboard", undefined, adminToken)
       ).data.leaderboard;
       const team1 = board.find((r: any) => r.id === playerId);
-      // Team 1 target is growth: Protect the Core fits growth at 12 / 20.
-      expect(team1.finalPoints).toBe(12);
-      expect(team1.totalPoints).toBeCloseTo(team1.qualifierPoints + 12, 8);
+      expect(team1.finalPoints).toBe(20);
+      expect(team1.totalPoints).toBeCloseTo(team1.qualifierPoints + 20, 8);
+      const review = (
+        await call(
+          `/api/admin/participants/${playerId}/answers`,
+          undefined,
+          adminToken,
+        )
+      ).data;
+      expect(review.final.selections).toHaveLength(8);
+      expect(review.final.assessment.disciplinePoints).toBe(16);
+      expect(review.final.assessment.planPoints).toBe(4);
+      expect(review.final.assessment.total).toBe(20);
+      expect(review.final.assessment.companyState).toEqual(f.companyState);
       expect(team1.isTop).toBe(true);
       const team3 = board.find((r: any) => r.teamNumber === 3);
       expect(team3.isTop).toBe(false);
@@ -649,11 +757,21 @@ describe.skipIf(!enabled)(
         ).response.status,
       ).toBe(409);
       const t2 = await teamToken(2);
+      const selections = [
+        ["management", "stabilize"],
+        ["marketing", "retain"],
+        ["esport", "community"],
+        ["digitalMarketing", "context"],
+        ["innovation", "contain"],
+        ["international", "pilot"],
+        ["logistics", "dual"],
+        ["finance", "credit"],
+      ].map(([sectionId, optionId]) => ({ sectionId, optionId }));
       expect(
         (
           await call(
             "/api/final/answer",
-            { optionId: "protect", reason: "too late" },
+            { selections, reason: "too late" },
             t2,
           )
         ).response.status,

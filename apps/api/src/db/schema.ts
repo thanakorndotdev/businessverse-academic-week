@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import type { FinalAssessment, FinalSelection } from "../game/final";
 import {
   pgTable,
   pgEnum,
@@ -140,6 +141,11 @@ export const finalAnswers = pgTable("final_answers", {
     .references(() => users.id)
     .primaryKey(),
   optionId: text("option_id").notNull(),
+  selections: jsonb("selections")
+    .$type<FinalSelection[]>()
+    .default([])
+    .notNull(),
+  assessment: jsonb("assessment").$type<FinalAssessment>(),
   reason: text().default("").notNull(),
   isFinalist: boolean("is_finalist").notNull(),
   fit: doublePrecision().notNull(),

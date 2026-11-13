@@ -526,8 +526,8 @@ function PhasePanel({
           "Announce Top 10 and open the Final?",
         )}
         body={t(
-          "ระบบจะล็อก 10 ทีมคะแนนสูงสุดเป็น Finalist ปิดรับคำตอบรอบคัดเลือก และเปิดโจทย์ Final Business Crisis (3 นาที) ให้ทุกทีม ทีมอื่นตอบได้แบบ Audience Challenge โดยไม่กระทบผล",
-          "The top 10 become finalists, the qualifier closes, and the 3-minute Final Business Crisis opens to every team. Non-finalists can answer as an audience challenge without affecting results.",
+          "ระบบจะล็อก 10 ทีมคะแนนสูงสุดเป็น Finalist ปิดรับคำตอบรอบคัดเลือก และเปิดโจทย์ The Perfect Storm: แผน 8 สาขา (3 นาที) ให้ทุกทีม ทีมอื่นตอบได้แบบ Audience Challenge โดยไม่กระทบผล",
+          "The top 10 become finalists, the qualifier closes, and the 3-minute Perfect Storm eight-discipline plan opens to every team. Non-finalists can answer as an audience challenge without affecting results.",
         )}
         confirmLabel={t("ยืนยันเปิด Final", "Open the Final")}
         pending={final.isPending}
@@ -834,12 +834,58 @@ function TeamAnswersView({ id }: { id: string }) {
           <div>
             <strong>
               Final Business Crisis
-              {!data.final.isFinalist && " · Audience"} · fit {data.final.fit} /
-              20
+              {!data.final.isFinalist && " · Audience"} · {data.final.fit} / 20
             </strong>
             <p>
               <b>{data.final.choice}</b> — “{data.final.reason}”
             </p>
+            <ul>
+              {data.final.selections.map((selection) => (
+                <li key={selection.sectionId}>
+                  <strong>{selection.section}</strong>: {selection.title}
+                </li>
+              ))}
+            </ul>
+            {data.final.assessment && (
+              <>
+                <p>
+                  {t("รายสาขา", "Disciplines")}:{" "}
+                  {data.final.assessment.disciplinePoints}/16 ·{" "}
+                  {t("แผนรวม", "Overall plan")}:{" "}
+                  {data.final.assessment.planPoints}/4 ·{" "}
+                  {data.final.assessment.version}
+                </p>
+                <ul>
+                  {data.final.assessment.disciplines.map((d) => (
+                    <li key={d.sectionId}>
+                      {d.sectionId}: {d.points}/2
+                    </li>
+                  ))}
+                </ul>
+                <p>
+                  {t("เงื่อนไขแผน", "Plan checks")}:{" "}
+                  {Object.entries(data.final.assessment.checks)
+                    .map(
+                      ([key, passed]) =>
+                        `${key}: ${passed ? t("ผ่าน", "pass") : t("ไม่ผ่าน", "fail")}`,
+                    )
+                    .join(" · ")}
+                </p>
+                <p>
+                  {t("งบสุทธิ", "Net allocated")}:{" "}
+                  {data.final.assessment.spent.toLocaleString()} ·{" "}
+                  {t("เงินคงเหลือ / สำรองขั้นต่ำ", "Remaining / minimum reserve")}:{" "}
+                  {data.final.assessment.remaining.toLocaleString()} /{" "}
+                  {data.final.assessment.minimumReserve.toLocaleString()}
+                </p>
+                {[
+                  ...data.final.assessment.issues,
+                  ...data.final.assessment.stateIssues,
+                ].map((issue) => (
+                  <p key={issue}>{issue}</p>
+                ))}
+              </>
+            )}
           </div>
         </li>
       )}

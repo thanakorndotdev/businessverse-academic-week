@@ -13,15 +13,26 @@ import {
   FINALIST_COUNT,
   QUESTION_SECONDS,
   QUESTION_GRACE_SECONDS,
-  finalFit,
-  finalOptions,
-  finalScenario,
   objectiveForTeam,
   objectives,
   simulate,
   type ObjectiveId,
 } from "../game/engine";
-import { ApiError, getCompetition, leaderboard, type User } from "./game";
+import {
+  ApiError,
+  getAnswers,
+  getCompetition,
+  leaderboard,
+  type User,
+} from "./game";
+import {
+  FINAL_VERSION,
+  finalSections,
+  publicFinalScenario,
+  scoreFinalPlan,
+  validateFinalPlan,
+  type FinalSelection,
+} from "../game/final";
 
 // Unambiguous characters only: no 0/O, 1/I/L.
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -178,9 +189,19 @@ export async function teamAnswers(id: string) {
     })),
     final: final
       ? {
-          choice:
-            finalOptions.find((o) => o.id === final.optionId)?.title ??
-            final.optionId,
+          choice: final.selections.length ? "แผนกู้ธุรกิจ 12 เดือน" : final.optionId,
+          selections: final.selections.map((selection) => ({
+            ...selection,
+            section:
+              finalSections.find((s) => s.id === selection.sectionId)?.title ??
+              selection.sectionId,
+            title:
+              finalSections
+                .find((s) => s.id === selection.sectionId)
+                ?.options.find((o) => o.id === selection.optionId)?.title ??
+              selection.optionId,
+          })),
+          assessment: final.assessment,
           reason: final.reason,
           isFinalist: final.isFinalist,
           fit: final.fit,
@@ -343,6 +364,8 @@ export async function finalStateFor(user: User) {
     .select()
     .from(finalAnswers)
     .where(eq(finalAnswers.userId, user.id));
+  const answers = await getAnswers(user.id);
+  const companyState = simulate(user.objectiveId as ObjectiveId, answers).state;
   const timer = c.phase === "final" ? finalWindow(c.finalOpenedAt) : null;
   const expired =
     !!timer &&
@@ -350,41 +373,41 @@ export async function finalStateFor(user: User) {
       new Date(timer.deadline).getTime() + QUESTION_GRACE_SECONDS * 1000;
   return {
     phase: c.phase,
+    companyState,
+    objective: objectives.find((o) => o.id === user.objectiveId)!,
     isFinalist: user.finalistRank !== null,
     open: c.phase === "final" && !mine && !expired,
     timer: mine || expired ? null : timer,
     saved: mine
       ? {
-          optionId: mine.optionId,
+          selections: mine.selections,
+          legacyChoice: mine.selections.length ? null : mine.optionId,
           reason: mine.reason,
           answeredAt: mine.answeredAt,
         }
       : null,
-    question:
-      c.phase === "qualifier"
-        ? null
-        : {
-            ...finalScenario,
-            options: finalOptions.map((o) => ({
-              id: o.id,
-              title: o.title,
-              detail: o.detail,
-            })),
-          },
+    question: c.phase === "qualifier" ? null : publicFinalScenario(),
   };
 }
 
 export async function submitFinal(
   user: User,
-  optionId: string,
+  selections: FinalSelection[],
   reason: string,
 ) {
+  if (user.role !== "attendee") throw new ApiError(403, "เฉพาะทีมผู้เล่น");
   const clean = reason.trim();
   if (clean.length < 3)
     throw new ApiError(400, "กรุณาเขียนเหตุผลของทีมอย่างน้อย 3 ตัวอักษร");
-  if (!finalOptions.some((o) => o.id === optionId))
-    throw new ApiError(400, "ตัวเลือกไม่ถูกต้อง");
+  if (clean.length > 300) throw new ApiError(400, "เหตุผลยาวได้ไม่เกิน 300 ตัวอักษร");
+  try {
+    validateFinalPlan(selections);
+  } catch (error) {
+    throw new ApiError(400, (error as Error).message);
+  }
   await db.transaction(async (tx) => {
+    // Serialize phase changes against the entire scoring transaction.
+    await tx.execute(sql`select 1 from competition where id = 1 for share`);
     const [locked] = await tx
       .select()
       .from(users)
@@ -405,10 +428,26 @@ export async function submitFinal(
       .where(eq(finalAnswers.userId, user.id));
     if (dup) throw new ApiError(409, "บันทึกคำตอบ Final แล้ว");
     const isFinalist = locked.finalistRank !== null;
-    const fit = finalFit(locked.objectiveId as ObjectiveId, optionId);
+    const answers = await tx
+      .select({
+        optionIds: userAnswers.optionIds,
+        stage: sql<number>`(${departments.displayOrder} - 1) * 3 + ${userAnswers.questionNumber}`,
+      })
+      .from(userAnswers)
+      .innerJoin(departments, eq(departments.id, userAnswers.departmentId))
+      .where(eq(userAnswers.userId, user.id));
+    const state = simulate(locked.objectiveId as ObjectiveId, answers).state;
+    const assessment = scoreFinalPlan(
+      locked.objectiveId as ObjectiveId,
+      state,
+      selections,
+    );
+    const fit = assessment.total;
     await tx.insert(finalAnswers).values({
       userId: user.id,
-      optionId,
+      optionId: FINAL_VERSION,
+      selections,
+      assessment,
       reason: clean.slice(0, 300),
       isFinalist,
       fit,

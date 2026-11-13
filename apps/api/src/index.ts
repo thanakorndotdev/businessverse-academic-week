@@ -191,7 +191,7 @@ export const app = new Elysia()
     async ({ user, body }) => {
       const result = await submitFinal(
         requireUser(user),
-        body.optionId,
+        body.selections,
         body.reason,
       );
       broadcast("SCOREBOARD_UPDATED", { at: Date.now() });
@@ -199,7 +199,13 @@ export const app = new Elysia()
     },
     {
       body: t.Object({
-        optionId: t.String({ maxLength: 64 }),
+        selections: t.Array(
+          t.Object({
+            sectionId: t.String({ maxLength: 32 }),
+            optionId: t.String({ maxLength: 32 }),
+          }),
+          { minItems: 8, maxItems: 8 },
+        ),
         reason: t.String({ minLength: 3, maxLength: 300 }),
       }),
     },

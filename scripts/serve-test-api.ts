@@ -8,7 +8,8 @@ const { migrate } = await import("drizzle-orm/postgres-js/migrator");
 await migrate(db, {
   migrationsFolder: new URL("../apps/api/drizzle", import.meta.url).pathname,
 });
-await sqlClient`truncate table user_answers, questions, departments, users restart identity cascade`;
+await sqlClient`truncate table final_answers, user_answers, questions, departments, users, competition restart identity cascade`;
+await sqlClient`insert into competition (id) values (1)`;
 const seed = Bun.spawn(["bun", "src/db/seed.ts"], {
   cwd: new URL("../apps/api", import.meta.url).pathname,
   stdout: "ignore",

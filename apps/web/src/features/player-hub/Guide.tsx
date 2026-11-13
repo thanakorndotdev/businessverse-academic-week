@@ -140,7 +140,13 @@ export function Guide() {
               "30",
               t("คุณภาพการตัดสินใจตาม target", "Decision quality for your target"),
             ],
-            ["20", t("Final Business Crisis (เฉพาะ Top 10)", "Final Business Crisis (Top 10 only)")],
+            [
+              "20",
+              t(
+                "Final แผน 8 สาขา (รวมรางวัลเฉพาะ Top 10)",
+                "Final: eight-discipline plan (Top 10 awards)",
+              ),
+            ],
           ].map(([score, label]) => (
             <div key={score}>
               <dt>{label}</dt>
@@ -151,8 +157,8 @@ export function Guide() {
         <p className="guide-fine-print">
           <LockKeyhole size={17} />
           {t(
-            "รอบคัดเลือกเต็ม 80 คะแนน 10 ทีมคะแนนสูงสุดเข้ารอบ Final รับอีก 20 คะแนน คะแนนและอันดับไม่แสดงระหว่างเล่น ประกาศผลบนจอของผู้จัดงานเท่านั้น",
-            "The qualifier is worth 80 points. The top 10 teams advance to a 20-point Final. Scores and rankings stay hidden during play and are announced only on the organizer’s screen.",
+            "รอบคัดเลือกเต็ม 80 คะแนน ทุกทีมส่งแผน Final 8 สาขาในโจทย์เดียวกันได้ คะแนน Final เต็ม 20 (รายสาขา 16 + ความสอดคล้องของแผน 4) รวมผลรางวัลเฉพาะ Top 10 คะแนนและอันดับแสดงเฉพาะจอผู้จัดงาน",
+            "The qualifier is worth 80 points. Every team may submit the shared eight-discipline Final plan, worth 20 (16 for disciplines + 4 for the integrated plan). Only Top 10 Final scores count toward awards. Scores and ranks appear only on the organizer’s screen.",
           )}
         </p>
       </section>

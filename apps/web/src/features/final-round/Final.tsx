@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Coins,
   CheckCircle2,
   Clock3,
   CloudLightning,
@@ -12,7 +13,7 @@ import {
   Radio,
   Trophy,
 } from "lucide-react";
-import { api } from "../../api";
+import { api, type FinalState } from "../../api";
 import { useCompetition, useUser } from "../../hooks";
 import { useText } from "../../store";
 import { ErrorState, Loading, SignInPrompt } from "../../components/Common";
@@ -30,7 +31,10 @@ export function FinalBanner() {
       <div>
         <strong>
           {data.phase === "final"
-            ? t("Final Business Crisis เปิดแล้ว", "The Final Business Crisis is open")
+            ? t(
+                "Final Business Crisis เปิดแล้ว",
+                "The Final Business Crisis is open",
+              )
             : t("การแข่งขันจบแล้ว", "The competition has ended")}
         </strong>
         <span>
@@ -54,8 +58,6 @@ export function Final() {
     enabled: !!user && user.role === "attendee",
     refetchInterval: 15000,
   });
-  const [selected, setSelected] = useState("");
-  const [reason, setReason] = useState("");
   const [now, setNow] = useState(() => Date.now());
   const timer = query.data?.timer ?? null;
   useEffect(() => {
@@ -79,11 +81,6 @@ export function Final() {
     );
     return () => clearTimeout(id);
   }, [expired, cache]);
-  const submit = useMutation({
-    mutationFn: () =>
-      api.finalAnswer({ optionId: selected, reason: reason.trim() }),
-    onSuccess: (state) => cache.setQueryData(["final"], state),
-  });
   if (isPending) return <Loading />;
   if (!user) return <SignInPrompt next="/final" />;
   if (user.role !== "attendee")
@@ -108,12 +105,19 @@ export function Final() {
       </Link>
       <div className="quiz-heading">
         <div>
-          <span className={`final-eyebrow ${f.isFinalist ? "finalist" : ""}`}>
-            {f.isFinalist ? <Trophy size={14} /> : <Radio size={14} />}
-            {f.isFinalist ? "FINALIST" : "AUDIENCE CHALLENGE"} · FINAL BUSINESS
-            CRISIS
-          </span>
-          <h1>{q?.title ?? "FINAL BUSINESS CRISIS"}</h1>
+          <h1>{q?.title ?? "The Perfect Storm"}</h1>
+          <p>
+            {f.isFinalist ? <Trophy size={14} /> : <Radio size={14} />}{" "}
+            {f.isFinalist
+              ? t(
+                  "Finalist · คะแนน Final รวมในผลรางวัล",
+                  "Finalist · Final counts toward awards",
+                )
+              : t(
+                  "ทุกทีมร่วมส่งแผนได้ · รวมคะแนนรางวัลเฉพาะ Top 10",
+                  "Every team can submit · Only Top 10 count toward awards",
+                )}
+          </p>
         </div>
       </div>
       <section className="question-panel">
@@ -141,6 +145,52 @@ export function Final() {
                 )}
               </p>
             )}
+            <section
+              className="final-context"
+              aria-label={t(
+                "เป้าหมายและสถานะบริษัทเดิม",
+                "Objective and existing company state",
+              )}
+            >
+              <div>
+                <h2>{f.objective.title}</h2>
+                <p>{f.objective.description}</p>
+                <strong>{f.objective.target}</strong>
+              </div>
+              <dl>
+                {(
+                  [
+                    "cash",
+                    "sales",
+                    "customer",
+                    "brand",
+                    "operations",
+                    "risk",
+                  ] as const
+                ).map((key) => (
+                  <div key={key}>
+                    <dt>
+                      {key === "cash" ? t("Coins เดิม", "Existing Coins") : key}
+                    </dt>
+                    <dd>{f.companyState[key].toLocaleString()}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p>
+                {t("ความสามารถเดิม", "Existing capabilities")}:{" "}
+                {(
+                  [
+                    "innovation",
+                    "crm",
+                    "premium",
+                    "analytics",
+                    "cyber",
+                  ] as const
+                )
+                  .filter((key) => f.companyState[key])
+                  .join(" · ") || t("ยังไม่มี", "None yet")}
+              </p>
+            </section>
             {remaining !== null && !f.saved && (
               <div
                 className={`question-timer ${remaining <= 30 ? "urgent" : ""} ${expired ? "expired" : ""}`}
@@ -171,12 +221,27 @@ export function Final() {
                 <h2>
                   {t("บันทึก Final Business Crisis แล้ว", "Final answer saved")}
                 </h2>
-                <p>
-                  <b>
-                    {q.options.find((o) => o.id === f.saved!.optionId)?.title}
-                  </b>{" "}
-                  — “{f.saved.reason}”
-                </p>
+                <ul className="final-saved-plan">
+                  {f.saved.selections.map((selection) => {
+                    const section = q.sections.find(
+                      (s) => s.id === selection.sectionId,
+                    );
+                    return (
+                      <li key={selection.sectionId}>
+                        <strong>{section?.title}</strong>
+                        <span>
+                          {
+                            section?.options.find(
+                              (o) => o.id === selection.optionId,
+                            )?.title
+                          }
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {f.saved.legacyChoice && <p>{f.saved.legacyChoice}</p>}
+                <p>“{f.saved.reason}”</p>
                 <p>
                   {t(
                     "รอผู้จัดงานประกาศผลบนจอหลัก",
@@ -196,90 +261,245 @@ export function Final() {
                 </p>
               </div>
             ) : (
-              <>
-                <fieldset className="answer-options">
-                  <legend className="sr-only">
-                    {t("เลือกแผน", "Choose a plan")}
-                  </legend>
-                  {q.options.map((o, i) => (
-                    <label
-                      key={o.id}
-                      className={`answer-option ${selected === o.id ? "selected" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="final"
-                        value={o.id}
-                        checked={selected === o.id}
-                        disabled={submit.isPending || expired}
-                        onChange={() => {
-                          submit.reset();
-                          setSelected(o.id);
-                        }}
-                      />
-                      <span className="option-letter">
-                        {String.fromCharCode(65 + i)}
-                      </span>
-                      <div>
-                        <strong>{o.title}</strong>
-                        <p>{o.detail}</p>
-                      </div>
-                      <span className="option-check">
-                        {selected === o.id && <Check size={13} />}
-                      </span>
-                    </label>
-                  ))}
-                </fieldset>
-                <label className="reason-field">
-                  <span>
-                    {t("เหตุผลของทีม", "Your team’s reasoning")}{" "}
-                    <small>
-                      {t(
-                        "อธิบายว่าทำไมแผนนี้เหมาะกับสถานะธุรกิจของทีม",
-                        "Explain why this plan fits your business state.",
-                      )}
-                    </small>
-                  </span>
-                  <textarea
-                    value={reason}
-                    maxLength={300}
-                    rows={3}
-                    disabled={submit.isPending || expired}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder={t("เราเลือกทางนี้เพราะ…", "We chose this because…")}
-                  />
-                  <em>{reason.length} / 300</em>
-                </label>
-                {submit.error && <ErrorState error={submit.error} />}
-                <div className="question-submit">
-                  <p>
-                    <LockKeyhole size={14} />
-                    {t(
-                      "ยืนยันแล้วเปลี่ยนคำตอบไม่ได้ · จำกัดเวลา 3 นาที",
-                      "Final once confirmed · 3-minute limit",
-                    )}
-                  </p>
-                  <button
-                    className="button primary"
-                    disabled={
-                      !selected ||
-                      reason.trim().length < 3 ||
-                      submit.isPending ||
-                      expired
-                    }
-                    onClick={() => submit.mutate()}
-                  >
-                    {submit.isPending
-                      ? t("กำลังบันทึก…", "Saving…")
-                      : t("ยืนยัน Final Crisis", "Confirm Final decision")}
-                    <ArrowRight size={18} />
-                  </button>
-                </div>
-              </>
+              <FinalPlanForm
+                key={`${user.id}:${f.timer?.startsAt}`}
+                state={f}
+                expired={expired}
+                draftKey={`businessverse-final:${user.id}:${f.timer?.startsAt}`}
+              />
             )}
           </>
         )}
       </section>
     </div>
+  );
+}
+
+function FinalPlanForm({
+  state,
+  expired,
+  draftKey,
+}: {
+  state: FinalState;
+  expired: boolean;
+  draftKey: string;
+}) {
+  const t = useText();
+  const cache = useQueryClient();
+  const q = state.question!;
+  const [draft, setDraft] = useState<{
+    selected: Record<string, string>;
+    reason: string;
+  }>(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(draftKey) ?? "null");
+      if (
+        saved &&
+        typeof saved.reason === "string" &&
+        saved.selected &&
+        typeof saved.selected === "object"
+      ) {
+        const selected = Object.fromEntries(
+          q.sections.flatMap((s) =>
+            s.options.some((o) => o.id === saved.selected[s.id])
+              ? [[s.id, saved.selected[s.id]]]
+              : [],
+          ),
+        );
+        return { selected, reason: saved.reason.slice(0, 300) };
+      }
+    } catch {
+      /* A private browser may disable storage. The form remains usable. */
+    }
+    return { selected: {}, reason: "" };
+  });
+  const update = (next: typeof draft) => {
+    setDraft(next);
+    try {
+      sessionStorage.setItem(draftKey, JSON.stringify(next));
+    } catch {
+      /* Optional recovery only. */
+    }
+  };
+  const selectedOptions = q.sections.flatMap((s) =>
+    s.options.filter((o) => o.id === draft.selected[s.id]),
+  );
+  const allocated = selectedOptions.reduce(
+    (sum, o) => sum + Math.max(0, o.coins),
+    0,
+  );
+  const received = selectedOptions.reduce(
+    (sum, o) => sum + Math.max(0, -o.coins),
+    0,
+  );
+  const remaining = q.budget + received - allocated;
+  const complete = selectedOptions.length === q.sections.length;
+  const submit = useMutation({
+    mutationFn: () =>
+      api.finalAnswer({
+        selections: q.sections.map((s) => ({
+          sectionId: s.id,
+          optionId: draft.selected[s.id],
+        })),
+        reason: draft.reason.trim(),
+      }),
+    onSuccess: (result) => {
+      cache.setQueryData(["final"], result);
+      try {
+        sessionStorage.removeItem(draftKey);
+      } catch {
+        /* Optional recovery only. */
+      }
+    },
+  });
+  const disabled = submit.isPending || expired || !state.open;
+  return (
+    <form
+      className="final-plan"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (
+          complete &&
+          remaining >= 0 &&
+          draft.reason.trim().length >= 3 &&
+          !disabled
+        )
+          submit.mutate();
+      }}
+    >
+      <div className="final-budget" role="status" aria-live="polite">
+        <div>
+          <Coins size={18} />
+          <strong>
+            {t("วงเงิน Final", "Final allocation")}: {q.budget.toLocaleString()}{" "}
+            Coins
+          </strong>
+        </div>
+        <p>
+          {t("จัดสรร", "Allocated")} {allocated.toLocaleString()} ·{" "}
+          {t("ได้รับ", "Received")} {received.toLocaleString()} ·{" "}
+          <strong>
+            {t("คงเหลือ", "Remaining")} {remaining.toLocaleString()}
+          </strong>
+        </p>
+        <span>
+          {selectedOptions.length} / 8 {t("ส่วน", "sections")}
+          {remaining < 0 &&
+            ` · ${t("เกินวงเงิน กรุณาปรับแผน", "Over budget. Revise your plan.")}`}
+        </span>
+      </div>
+      <p>
+        {t(
+          "เลือกหนึ่งการกระทำในแต่ละสาขา แล้วสรุปเหตุผลทั้งแผนครั้งเดียว วงเงินนี้สำหรับแผน Final เท่ากันทุกทีม สถานะบริษัทเดิมมีผลต่อความเหมาะสมและเงินสำรองที่ควรเก็บ",
+          "Choose one action per discipline and explain the whole plan once. Every team receives the same Final allocation. Your existing company state affects suitability and required cash reserves.",
+        )}
+      </p>
+      {q.sections.map((section, index) => (
+        <fieldset
+          key={section.id}
+          className="final-section"
+          disabled={disabled}
+        >
+          <legend>
+            <span>{index + 1} / 8</span> {section.title}
+          </legend>
+          <p>{section.prompt}</p>
+          <div className="answer-options">
+            {section.options.map((option, i) => (
+              <label
+                key={option.id}
+                className={`answer-option ${draft.selected[section.id] === option.id ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name={section.id}
+                  value={option.id}
+                  required
+                  checked={draft.selected[section.id] === option.id}
+                  onChange={() => {
+                    submit.reset();
+                    update({
+                      ...draft,
+                      selected: { ...draft.selected, [section.id]: option.id },
+                    });
+                  }}
+                />
+                <span className="option-letter" aria-hidden="true">
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <div>
+                  <strong>{option.title}</strong>
+                  <p>
+                    {t("ข้อดี", "Benefit")}: {option.benefit}
+                  </p>
+                  <p>
+                    {t("ข้อแลกเปลี่ยน", "Tradeoff")}: {option.tradeoff}
+                  </p>
+                  <span className="final-action-coins">
+                    {option.coins < 0 ? t("ได้รับ", "Receive") : t("ใช้", "Use")}{" "}
+                    {Math.abs(option.coins).toLocaleString()} Coins
+                  </span>
+                </div>
+                <span className="option-check" aria-hidden="true">
+                  {draft.selected[section.id] === option.id && (
+                    <Check size={13} />
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+      <label className="reason-field">
+        <span>
+          {t("สรุปเหตุผลของแผนทั้งชุด", "Explain your complete plan")}{" "}
+          <small>
+            {t(
+              "เชื่อมลำดับการทำงาน เงินสำรอง สถานะบริษัท และ Objective ของทีม",
+              "Connect timing, cash reserves, company state and your objective.",
+            )}
+          </small>
+        </span>
+        <textarea
+          value={draft.reason}
+          required
+          minLength={3}
+          maxLength={300}
+          rows={4}
+          disabled={disabled}
+          onChange={(e) => update({ ...draft, reason: e.target.value })}
+          placeholder={t(
+            "เราจะแก้…ก่อน แล้วจึง… เพื่อ…",
+            "We will address… first, then… to achieve…",
+          )}
+        />
+        <em>{draft.reason.length} / 300</em>
+      </label>
+      {submit.error && <ErrorState error={submit.error} />}
+      <div className="question-submit">
+        <p>
+          <LockKeyhole size={14} />
+          {t(
+            "ส่งแผนครั้งเดียว · ยืนยันแล้วแก้ไม่ได้ · เวลา 3 นาที",
+            "Submit once · No changes after confirmation · 3 minutes",
+          )}
+        </p>
+        <button
+          type="submit"
+          className="button primary"
+          disabled={
+            disabled ||
+            !complete ||
+            remaining < 0 ||
+            draft.reason.trim().length < 3
+          }
+        >
+          {submit.isPending
+            ? t("กำลังบันทึก…", "Saving…")
+            : t("ยืนยันแผน 8 ส่วน", "Submit all 8 decisions")}
+          <ArrowRight size={18} />
+        </button>
+      </div>
+    </form>
   );
 }

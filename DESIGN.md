@@ -153,9 +153,9 @@ The interface serves participants making decisions on phones and organizers oper
 - Cream page canvas with white operational panels and muted discipline illustrations.
 - A connected eight-node business diagram and circular completion stamps.
 - Thai-first content with an English interface toggle.
-- Visible objectives, business state and three-question progress.
+- Visible objectives, business state and decision progress across qualifier questions and the integrated Final plan.
 
-Evidence: `apps/web/src/styles.css`, the direction contract in `apps/web/src/App.tsx`, `Shell`, `Hub`, `Quiz`, `Admin`, and `main.tsx`. Direction provenance is in `docs/design-direction.md`; product constraints are in `PRODUCT.md`. The four supplied captures in `docs/screenshots/` were inspected: desktop/mobile predate final semantic-label and decision-context changes; admin/presentation show no players. No computed contrast measurement or pixel-fidelity certification is implied by this record.
+Evidence: `apps/web/src/styles.css`, the direction contract in `apps/web/src/App.tsx`, `Shell`, `Hub`, `Quiz`, `Final`, `Admin`, and `main.tsx`. Direction provenance is in `docs/design-direction.md`; product constraints are in `PRODUCT.md`. The four supplied captures in `docs/screenshots/` were inspected: desktop/mobile predate final semantic-label and decision-context changes; admin/presentation show no players. No computed contrast measurement or pixel-fidelity certification is implied by this record.
 
 ## Colors
 
@@ -217,7 +217,7 @@ The discipline grid is four equal columns with (16px) gaps, switching to two col
 
 Bottom navigation is (69px) high, includes safe-area inset padding and has footer clearance. Data tables scroll within their container. Long participant names wrap in presentation cards; account names truncate in the topbar.
 
-**The Context Before Choice Rule.** Keep the current business objective, measurable target and business metrics ahead of the scenario on compact screens. Refresh target context with live target changes; do not make participants leave their decision to find it.
+**The Context Before Choice Rule.** Keep the current business objective, measurable target and business metrics before answer controls. Qualifier context precedes the scenario on compact screens; the Final introduces its shared crisis before company context. Refresh target context with live target changes; do not make participants leave their decision to find it.
 
 ## Elevation & Depth
 
@@ -264,6 +264,14 @@ Discipline cards are whole-card links with a category art band, number, icon, st
 
 Show the objective and its threshold beside the decision on desktop and above it on compact screens. Business state uses a semantic definition list, tabular numbers and capability tags. Three ordered steps distinguish current and completed questions. The scenario precedes a real fieldset of radio or checkbox inputs; the full answer surface is its label. Selection changes both border and fill and adds a check indicator. Investment choices show the total in a polite live region. After a saved answer, focus moves to the next question or completion heading.
 
+### Integrated Plan / Shared Allocation
+
+The Final extends the existing white decision panel rather than introducing another visual world. Its shared crisis comes first, followed by the objective, target and six current business indicators. The cream context inset uses a three-column definition list and tabular numbers; the plan remains a single column within the existing (880px) panel cap.
+
+A sticky marine allocation strip keeps allocated, received and remaining Coins beside the completed-section count. It uses the existing strip radius, an (8px) top offset and (16px 20px) padding, reducing to (12px) on phones. Counts and an explicit over-budget message carry the state alongside color. Native fieldsets separate the eight disciplines with numbered legends; each full-width radio label shows its action, benefit, tradeoff and Coins. A single rationale field follows the complete set. The saved state replaces the controls with a quiet divided list of all eight selected actions and the shared rationale.
+
+**The Shared Allocation Rule.** Keep the common budget and plan progress visible across a multi-part decision; show the consequences within each action label and summarize the complete saved plan.
+
 ### Organizer Panels / Stage Presentation
 
 Gate controls use numbered rows, department names, question counts and compact primary actions. Standings use semantic tables, a scroll wrapper, tabular scores and first-four emphasis. Empty standings explicitly await participants; do not invent populated scores. Rankings remain in the organizer experience.
@@ -281,7 +289,7 @@ Keep the skip link, main landmark, named navigation, accessible control labels a
 - **Do** use marine for wayfinding, cream for the canvas and white for operational panels.
 - **Do** preserve gold emphasis for brand, entry, completion and presentation hierarchy.
 - **Do** keep Thai and English content legible within the shared self-hosted type stack.
-- **Do** put objective, current business metrics and three-step progress within the decision flow.
+- **Do** put objective, current business metrics and question or plan progress within the decision flow.
 - **Do** pair state color with labels, icons or counts and retain native input and dialog semantics.
 - **Do** preserve reduced-motion behavior, visible focus and mobile navigation clearance.
 

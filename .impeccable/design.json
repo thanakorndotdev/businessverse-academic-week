@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T07:42:34.413902+00:00",
+  "generatedAt": "2026-11-13T04:07:39.983566+00:00",
   "title": "Design System: Businessverse Academic Week",
   "extensions": {
     "colorMeta": {
@@ -626,9 +626,9 @@
       "name": "Answer Selection",
       "kind": "custom",
       "refersTo": "answer-selected",
-      "description": "Native radio label with selected surface and focus on the full wrapper.",
-      "html": "<fieldset class=\"ds-answers\"><legend>เลือกคำตอบ</legend><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\" checked><span class=\"ds-letter\">A</span><span class=\"ds-answer-copy\"><strong>พิจารณาเป้าหมายของทีม</strong><span>ดูผลต่อธุรกิจก่อนตัดสินใจ</span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\"><span class=\"ds-letter\">B</span><span class=\"ds-answer-copy\"><strong>พิจารณาผลระยะสั้น</strong><span>เปรียบเทียบกับสถานะธุรกิจปัจจุบัน</span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label></fieldset>",
-      "css": ".ds-answers{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;color:var(--ink,#173540);}.ds-answers legend{font-size:12px;margin-bottom:10px;}.ds-answer{border:1px solid #dce2d5;border-radius:9px;padding:17px 14px;display:flex;gap:11px;align-items:flex-start;position:relative;cursor:pointer;transition:background .15s,border-color .15s;}.ds-answer:hover{background:#f6f8f1;}.ds-answer:has(input:checked){border-color:#487159;background:#f0f5e9;}.ds-answer:has(input:focus-visible){outline:3px solid #bd8225;outline-offset:3px;}.ds-answer input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;}.ds-letter{display:grid;place-items:center;min-width:26px;height:26px;background:#f1f3eb;border-radius:5px;font-size:10px;color:#647862;}.ds-answer:has(input:checked) .ds-letter{background:#dce8ce;color:#3c6344;}.ds-answer-copy{flex:1;}.ds-answer-copy strong{display:block;font-size:13px;line-height:1.5;}.ds-answer-copy>span{display:block;font-size:11px;line-height:1.7;color:var(--muted,#607176);margin-top:4px;}.ds-answer-check{height:17px;width:17px;border:1px solid #b9c5ad;border-radius:50%;display:grid;place-items:center;margin-top:4px;}.ds-answer-check svg{visibility:hidden;}.ds-answer:has(input:checked) .ds-answer-check{background:#406c47;color:#fff;border-color:#406c47;}.ds-answer:has(input:checked) .ds-answer-check svg{visibility:visible;}@media(prefers-reduced-motion:reduce){.ds-answer{transition:none;}}"
+      "description": "Native radio labels with selected surface and full-wrapper focus; the integrated Final adds shared allocation, plan progress and action consequences.",
+      "html": "<div class=\"ds-plan\"><div class=\"ds-allocation\" role=\"status\" aria-live=\"polite\"><strong>วงเงิน Final: 300,000 Coins</strong><p>จัดสรร 20,000 · ได้รับ 0 · <strong>คงเหลือ 280,000</strong></p><span>1 / 8 ส่วน</span></div><fieldset class=\"ds-answers\"><legend>1 / 8 · Management</legend><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\" checked><span class=\"ds-letter\">A</span><span class=\"ds-answer-copy\"><strong>พิจารณาเป้าหมายของทีม</strong><span>ข้อดี: รักษาการดำเนินงาน<br>ข้อแลกเปลี่ยน: ใช้เงินสำรองบางส่วน<br><b class=\"ds-action-coins\">ใช้ 20,000 Coins</b></span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label><label class=\"ds-answer\"><input type=\"radio\" name=\"ds-choice\"><span class=\"ds-letter\">B</span><span class=\"ds-answer-copy\"><strong>พิจารณาผลระยะสั้น</strong><span>ข้อดี: เก็บเงินสำรอง<br>ข้อแลกเปลี่ยน: แก้ปัญหาช้าลง<br><b class=\"ds-action-coins\">ใช้ 0 Coins</b></span></span><span class=\"ds-answer-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label></fieldset></div>",
+      "css": ".ds-answers{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;color:var(--ink,#173540);}.ds-answers legend{font-size:12px;margin-bottom:10px;}.ds-answer{border:1px solid #dce2d5;border-radius:9px;padding:17px 14px;display:flex;gap:11px;align-items:flex-start;position:relative;cursor:pointer;transition:background .15s,border-color .15s;}.ds-answer:hover{background:#f6f8f1;}.ds-answer:has(input:checked){border-color:#487159;background:#f0f5e9;}.ds-answer:has(input:focus-visible){outline:3px solid #bd8225;outline-offset:3px;}.ds-answer input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;}.ds-letter{display:grid;place-items:center;min-width:26px;height:26px;background:#f1f3eb;border-radius:5px;font-size:10px;color:#647862;}.ds-answer:has(input:checked) .ds-letter{background:#dce8ce;color:#3c6344;}.ds-answer-copy{flex:1;}.ds-answer-copy strong{display:block;font-size:13px;line-height:1.5;}.ds-answer-copy>span{display:block;font-size:11px;line-height:1.7;color:var(--muted,#607176);margin-top:4px;}.ds-answer-check{height:17px;width:17px;border:1px solid #b9c5ad;border-radius:50%;display:grid;place-items:center;margin-top:4px;}.ds-answer-check svg{visibility:hidden;}.ds-answer:has(input:checked) .ds-answer-check{background:#406c47;color:#fff;border-color:#406c47;}.ds-answer:has(input:checked) .ds-answer-check svg{visibility:visible;}@media(prefers-reduced-motion:reduce){.ds-answer{transition:none;}} .ds-plan{font-family:var(--sans,\"Space Grotesk\",\"Noto Sans Thai\",sans-serif);color:var(--ink,#173540);}.ds-allocation{position:sticky;top:8px;z-index:2;background:var(--ink,#173540);color:white;padding:16px 20px;border-radius:10px;font-variant-numeric:tabular-nums;margin-bottom:32px;font-size:14px;}.ds-allocation p{margin:8px 0;line-height:1.6;}.ds-allocation>span{font-size:13px;}.ds-plan .ds-answers legend{font-size:20px;font-weight:600;}.ds-action-coins{display:block;font-size:14px;font-weight:600;margin-top:10px;font-variant-numeric:tabular-nums;}@media(max-width:540px){.ds-allocation{padding:12px;}.ds-plan .ds-answers legend{font-size:18px;}.ds-plan .ds-answer{padding:14px 10px;gap:8px;}}"
     },
     {
       "name": "Objective Context",
@@ -654,7 +654,7 @@
       "Cream page canvas with white operational panels and muted discipline illustrations.",
       "A connected eight-node business diagram and circular completion stamps.",
       "Thai-first content with an English interface toggle.",
-      "Visible objectives, business state and three-question progress."
+      "Visible objectives, business state and decision progress across qualifier questions and the integrated Final plan."
     ],
     "rules": [
       {
@@ -669,20 +669,25 @@
       },
       {
         "name": "The Context Before Choice Rule",
-        "body": "Keep the current business objective, measurable target and business metrics ahead of the scenario on compact screens. Refresh target context with live target changes; do not make participants leave their decision to find it.",
+        "body": "Keep the current business objective, measurable target and business metrics before answer controls. Qualifier context precedes the scenario on compact screens; the Final introduces its shared crisis before company context. Refresh target context with live target changes; do not make participants leave their decision to find it.",
         "section": "layout"
       },
       {
         "name": "The Tonal Depth Rule",
         "body": "Use surface color and spacing before adding elevation; keep shadows tied to the existing selection, hover or waiting treatments.",
         "section": "elevation"
+      },
+      {
+        "name": "The Shared Allocation Rule",
+        "body": "Keep the common budget and plan progress visible across a multi-part decision; show the consequences within each action label and summarize the complete saved plan.",
+        "section": "components"
       }
     ],
     "dos": [
       "**Do** use marine for wayfinding, cream for the canvas and white for operational panels.",
       "**Do** preserve gold emphasis for brand, entry, completion and presentation hierarchy.",
       "**Do** keep Thai and English content legible within the shared self-hosted type stack.",
-      "**Do** put objective, current business metrics and three-step progress within the decision flow.",
+      "**Do** put objective, current business metrics and question or plan progress within the decision flow.",
       "**Do** pair state color with labels, icons or counts and retain native input and dialog semantics.",
       "**Do** preserve reduced-motion behavior, visible focus and mobile navigation clearance."
     ],

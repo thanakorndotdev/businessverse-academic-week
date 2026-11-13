@@ -4186,7 +4186,7 @@ dialog.unlock-dialog::backdrop {
   font-size: 12px;
   padding: 10px 14px;
   background: #f6f6f1;
-  border-left: 3px solid var(--gold);
+  border: 1px solid var(--line);
 }
 .business-summary {
   display: flex;
@@ -4233,4 +4233,135 @@ dialog.unlock-dialog::backdrop {
 .rename-form input {
   min-width: 0;
   flex: 1 1 180px;
+}
+
+/* One integrated Final plan, using the existing operational surfaces. */
+.final-page .quiz-heading p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.final-context {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--paper);
+  border-radius: 10px;
+}
+.final-context h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.final-context dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+.final-context dt {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.final-context dd {
+  margin: 0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.final-context > p {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+.final-plan {
+  min-width: 0;
+}
+.final-budget {
+  position: sticky;
+  top: 8px;
+  z-index: 2;
+  background: var(--ink);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.final-budget > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.final-budget p {
+  margin: 8px 0;
+  color: inherit;
+}
+.final-budget > span {
+  font-size: 13px;
+}
+.final-section {
+  margin: 32px 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.final-section legend {
+  font-size: 20px;
+  font-weight: 600;
+}
+.final-section legend > span {
+  font-size: 13px;
+  color: var(--muted);
+  margin-right: 8px;
+}
+.final-section > p {
+  margin: 6px 0 16px;
+}
+.final-section .answer-option {
+  align-items: start;
+}
+.final-section .answer-option > div {
+  min-width: 0;
+}
+.final-section .answer-option p {
+  margin: 6px 0;
+}
+.final-action-coins {
+  display: block;
+  font-weight: 600;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.final-saved-plan {
+  text-align: left;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+}
+.final-saved-plan li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.final-saved-plan strong,
+.final-saved-plan span {
+  display: block;
+}
+@media (max-width: 540px) {
+  .final-page .question-panel {
+    padding: 18px;
+  }
+  .final-budget {
+    padding: 12px;
+  }
+  .final-budget > div {
+    align-items: start;
+  }
+  .final-budget > div > svg {
+    flex: 0 0 18px;
+  }
+  .final-section .answer-option {
+    padding: 14px 10px;
+    gap: 8px;
+  }
+  .final-section legend {
+    font-size: 18px;
+  }
 }
