@@ -115,6 +115,10 @@ export const api = {
         .participants({ id })
         .delete(undefined, { query: { confirm } }),
     ),
+  deleteAllTeams: ({ confirm }: { confirm?: string }) =>
+    read<{ participants: AdminTeam[] }>(
+      client.api.admin.participants.delete(undefined, { query: { confirm } }),
+    ),
   teamAnswers: (id: string) =>
     read<TeamAnswers>(client.api.admin.participants({ id }).answers.get()),
   openFinal: () =>

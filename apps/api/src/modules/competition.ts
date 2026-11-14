@@ -166,6 +166,23 @@ export async function deleteTeam(id: string, confirm?: string) {
   return adminTeams();
 }
 
+/** Deletes every attendee team, their codes and answers. */
+export async function deleteAllTeams(confirm?: string) {
+  await db.transaction(async (tx) => {
+    const teams = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.role, "attendee"))
+      .for("update");
+    await removeTeams(
+      tx,
+      teams.map((u) => u.id),
+      confirm,
+    );
+  });
+  return adminTeams();
+}
+
 export async function renameTeam(user: User, name: string) {
   if (user.role !== "attendee") throw new ApiError(403, "เฉพาะทีมผู้เล่น");
   const clean = name.trim().replace(/\s+/g, " ");

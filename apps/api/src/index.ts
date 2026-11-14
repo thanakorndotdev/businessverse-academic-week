@@ -22,6 +22,7 @@ import {
   teamNumbers,
   generateTeams,
   deleteTeam,
+  deleteAllTeams,
   renameTeam,
   adminTeams,
   teamAnswers,
@@ -376,6 +377,17 @@ export const app = new Elysia()
         confirm: t.Optional(t.String({ maxLength: 16 })),
       }),
     },
+  )
+  .delete(
+    "/api/admin/participants",
+    async ({ user, query }) => {
+      requireAdmin(user);
+      const participants = await deleteAllTeams(query.confirm);
+      broadcast("TARGET_UPDATED", { userId: "*" });
+      broadcast("SCOREBOARD_UPDATED", { at: Date.now() });
+      return { participants };
+    },
+    { query: t.Object({ confirm: t.Optional(t.String({ maxLength: 16 })) }) },
   )
   .delete(
     "/api/admin/participants/:id",

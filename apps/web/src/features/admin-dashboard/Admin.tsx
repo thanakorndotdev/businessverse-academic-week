@@ -606,6 +606,7 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const [shrinkTo, setShrinkTo] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<AdminTeam | null>(null);
+  const [wipeAll, setWipeAll] = useState(false);
   const participants = useQuery({
     queryKey: ["participants"],
     queryFn: api.participants,
@@ -633,6 +634,15 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
       applyRoster(data);
       if (open === id) setOpen(null);
       setDeleting(null);
+    },
+  });
+  const removeAll = useMutation({
+    mutationFn: api.deleteAllTeams,
+    onSuccess: (data) => {
+      applyRoster(data);
+      setOpen(null);
+      setDraft(null);
+      setWipeAll(false);
     },
   });
   const target = useMutation({
@@ -696,8 +706,37 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
             <Download size={14} />
             CSV
           </button>
+          <button
+            type="button"
+            className="button small danger"
+            disabled={!list.length || removeAll.isPending}
+            onClick={() => setWipeAll(true)}
+          >
+            <Trash2 size={14} />
+            {t("ลบทุกทีม", "Delete all teams")}
+          </button>
         </form>
       </div>
+      <ConfirmDialog
+        open={wipeAll}
+        title={t(
+          `ลบทั้งหมด ${list.length} ทีม?`,
+          `Delete all ${list.length} teams?`,
+        )}
+        body={t(
+          `ลบทุกทีม รหัสเข้าเกม${list.some(progressed) ? ` และคำตอบกับเหตุผลของ ${list.filter(progressed).length} ทีมที่เริ่มเล่นแล้ว` : ""} ทีมที่ login อยู่จะถูกออกจากเกม ตั้งจำนวนทีมอีกครั้งจะได้รหัสใหม่ทั้งหมด ย้อนกลับไม่ได้`,
+          `Deletes every team and its code${list.some(progressed) ? `, plus answers and reasons from ${list.filter(progressed).length} teams that already played` : ""}. Logged-in teams are signed out. Setting the team count again issues all-new codes. This cannot be undone.`,
+        )}
+        typed="DELETE"
+        confirmLabel={t("ลบทุกทีม", "Delete all teams")}
+        pending={removeAll.isPending}
+        error={removeAll.error}
+        onConfirm={() => removeAll.mutate({ confirm: "DELETE" })}
+        onClose={() => {
+          setWipeAll(false);
+          removeAll.reset();
+        }}
+      />
       <ConfirmDialog
         open={shrinkTo !== null}
         title={t(

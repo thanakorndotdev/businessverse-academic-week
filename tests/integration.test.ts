@@ -980,5 +980,55 @@ describe.skipIf(!enabled)(
       for (const n of [1, 2])
         expect(restored.data.participants[n - 1].accessCode).toBe(codes[n]);
     });
+    // Runs last: it wipes the roster and the issued codes.
+    test("organizer can delete every team at once", async () => {
+      const roster = await call(
+        "/api/admin/participants",
+        undefined,
+        adminToken,
+      );
+      const team1 = roster.data.participants[0];
+      const q = bank.find((b) => b.departmentId === departments[0].id);
+      await sqlClient`insert into user_answers (user_id, department_id, question_id, question_number, selected_option_index, option_ids, is_correct, points_earned)
+        values (${team1.id}, ${q.departmentId}, ${q.id}, 1, 0, '[]'::jsonb, false, 0)
+        on conflict do nothing`;
+      expect(
+        (
+          await call(
+            "/api/admin/participants",
+            undefined,
+            playerToken,
+            "DELETE",
+          )
+        ).response.status,
+      ).toBe(403);
+      const refused = await call(
+        "/api/admin/participants",
+        undefined,
+        adminToken,
+        "DELETE",
+      );
+      expect(refused.response.status).toBe(409);
+      const wiped = await call(
+        "/api/admin/participants?confirm=DELETE",
+        undefined,
+        adminToken,
+        "DELETE",
+      );
+      expect(wiped.response.status).toBe(200);
+      expect(wiped.data.participants).toEqual([]);
+      const [left] =
+        await sqlClient`select count(*)::int as n from users where role = 'attendee'`;
+      expect(left.n).toBe(0);
+      expect(
+        (await call("/api/auth/me", undefined, playerToken)).response.status,
+      ).toBe(401);
+      const regrown = await call(
+        "/api/admin/teams/generate",
+        { count: 2 },
+        adminToken,
+      );
+      expect(regrown.data.participants).toHaveLength(2);
+    });
   },
 );
