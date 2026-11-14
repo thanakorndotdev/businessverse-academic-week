@@ -105,9 +105,15 @@ export const api = {
     ),
   participants: () =>
     read<{ participants: AdminTeam[] }>(client.api.admin.participants.get()),
-  generateTeams: (count: number) =>
+  generateTeams: ({ count, confirm }: { count: number; confirm?: string }) =>
     read<{ participants: AdminTeam[] }>(
-      client.api.admin.teams.generate.post({ count }),
+      client.api.admin.teams.generate.post({ count, confirm }),
+    ),
+  deleteTeam: ({ id, confirm }: { id: string; confirm?: string }) =>
+    read<{ participants: AdminTeam[] }>(
+      client.api.admin
+        .participants({ id })
+        .delete(undefined, { query: { confirm } }),
     ),
   teamAnswers: (id: string) =>
     read<TeamAnswers>(client.api.admin.participants({ id }).answers.get()),

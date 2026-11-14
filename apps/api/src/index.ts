@@ -21,6 +21,7 @@ import {
   teamLogin,
   teamNumbers,
   generateTeams,
+  deleteTeam,
   renameTeam,
   adminTeams,
   teamAnswers,
@@ -364,11 +365,31 @@ export const app = new Elysia()
     "/api/admin/teams/generate",
     async ({ user, body }) => {
       requireAdmin(user);
-      const participants = await generateTeams(body.count);
+      const participants = await generateTeams(body.count, body.confirm);
       broadcast("TARGET_UPDATED", { userId: "*" });
+      broadcast("SCOREBOARD_UPDATED", { at: Date.now() });
       return { participants };
     },
-    { body: t.Object({ count: t.Integer({ minimum: 1, maximum: 300 }) }) },
+    {
+      body: t.Object({
+        count: t.Integer({ minimum: 1, maximum: 300 }),
+        confirm: t.Optional(t.String({ maxLength: 16 })),
+      }),
+    },
+  )
+  .delete(
+    "/api/admin/participants/:id",
+    async ({ user, params, query }) => {
+      requireAdmin(user);
+      const participants = await deleteTeam(params.id, query.confirm);
+      broadcast("TARGET_UPDATED", { userId: "*" });
+      broadcast("SCOREBOARD_UPDATED", { at: Date.now() });
+      return { participants };
+    },
+    {
+      params: t.Object({ id: t.String({ format: "uuid" }) }),
+      query: t.Object({ confirm: t.Optional(t.String({ maxLength: 16 })) }),
+    },
   )
   .get(
     "/api/admin/participants/:id/answers",

@@ -4048,6 +4048,12 @@ dialog.unlock-dialog::backdrop {
 .icon-text:hover:not(:disabled) {
   background: #f0f3e9;
 }
+.icon-text.danger {
+  color: #a5402c;
+}
+.icon-text.danger:hover:not(:disabled) {
+  background: #fbefec;
+}
 .teams-table .finalist-label {
   margin-left: 8px;
 }

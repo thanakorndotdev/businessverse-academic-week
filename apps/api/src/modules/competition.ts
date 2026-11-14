@@ -75,17 +75,57 @@ export async function teamLogin(teamNumber: number, code: string) {
   return team;
 }
 
+/** Typed confirmation required before deleting teams that already have progress. */
+export const DELETE_CONFIRM = "DELETE";
+
 /**
- * Ensures teams 1..count exist and each has an access code. Existing teams,
- * their names, targets and answers are kept; only missing codes are issued.
- * Codes are printed and fixed to each team's seat, so nothing ever reissues one.
+ * Removes attendee teams and everything they submitted. Teams that already
+ * answered (qualifier or final) are only removed with the typed confirmation.
  */
-export async function generateTeams(count: number) {
+async function removeTeams(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  ids: string[],
+  confirm?: string,
+) {
+  if (!ids.length) return 0;
+  const [answers] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(userAnswers)
+    .where(inArray(userAnswers.userId, ids));
+  const [finals] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(finalAnswers)
+    .where(inArray(finalAnswers.userId, ids));
+  if ((answers.n > 0 || finals.n > 0) && confirm !== DELETE_CONFIRM)
+    throw new ApiError(
+      409,
+      `ทีมที่จะลบมีคำตอบแล้ว (${answers.n + finals.n} คำตอบ) พิมพ์ ${DELETE_CONFIRM} เพื่อยืนยัน`,
+    );
+  await tx.delete(userAnswers).where(inArray(userAnswers.userId, ids));
+  await tx.delete(finalAnswers).where(inArray(finalAnswers.userId, ids));
+  await tx
+    .delete(users)
+    .where(and(inArray(users.id, ids), eq(users.role, "attendee")));
+  return ids.length;
+}
+
+/**
+ * Makes teams 1..count the full roster. Existing teams in range keep their
+ * names, targets, answers and codes; only missing codes are issued, because
+ * codes are printed and fixed to each team's seat. Teams numbered above
+ * count are deleted (with confirmation when they already have answers).
+ */
+export async function generateTeams(count: number, confirm?: string) {
   await db.transaction(async (tx) => {
     const existing = await tx
       .select()
       .from(users)
       .where(eq(users.role, "attendee"));
+    await removeTeams(
+      tx,
+      existing.filter((u) => u.teamNumber > count).map((u) => u.id),
+      confirm,
+    );
     for (let n = 1; n <= count; n++) {
       const team = existing.find((u) => u.teamNumber === n);
       if (team) {
@@ -108,6 +148,20 @@ export async function generateTeams(count: number) {
     await tx.execute(
       sql`select setval(pg_get_serial_sequence('users', 'team_number'), greatest((select max(team_number) from users), 1))`,
     );
+  });
+  return adminTeams();
+}
+
+/** Deletes one team, its code and its answers. */
+export async function deleteTeam(id: string, confirm?: string) {
+  await db.transaction(async (tx) => {
+    const [team] = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.id, id), eq(users.role, "attendee")))
+      .for("update");
+    if (!team) throw new ApiError(404, "ไม่พบทีม");
+    await removeTeams(tx, [team.id], confirm);
   });
   return adminTeams();
 }

@@ -898,5 +898,87 @@ describe.skipIf(!enabled)(
       await ar.cancel();
       await pr.cancel();
     });
+    test("organizer can lower the team count and delete single teams", async () => {
+      const roster = async () =>
+        (await call("/api/admin/participants", undefined, adminToken)).data
+          .participants as any[];
+      const grown = await call(
+        "/api/admin/teams/generate",
+        { count: 6 },
+        adminToken,
+      );
+      expect(grown.response.status).toBe(200);
+      expect(grown.data.participants).toHaveLength(6);
+      const code5 = grown.data.participants[4].accessCode;
+      // Lowering the count removes teams above it without touching the rest.
+      const shrunk = await call(
+        "/api/admin/teams/generate",
+        { count: 4 },
+        adminToken,
+      );
+      expect(shrunk.response.status).toBe(200);
+      expect(shrunk.data.participants.map((p: any) => p.teamNumber)).toEqual([
+        1, 2, 3, 4,
+      ]);
+      for (const p of shrunk.data.participants)
+        expect(p.accessCode).toBe(codes[p.teamNumber]);
+      expect(
+        (await call("/api/auth/team", { teamNumber: 5, code: code5 })).response
+          .status,
+      ).toBe(401);
+      // Teams that already answered need the typed confirmation.
+      const team4 = shrunk.data.participants[3];
+      const q = bank.find((b) => b.departmentId === departments[0].id);
+      await sqlClient`insert into user_answers (user_id, department_id, question_id, question_number, selected_option_index, option_ids, is_correct, points_earned)
+        values (${team4.id}, ${q.departmentId}, ${q.id}, 1, 0, '[]'::jsonb, false, 0)`;
+      const refused = await call(
+        "/api/admin/teams/generate",
+        { count: 3 },
+        adminToken,
+      );
+      expect(refused.response.status).toBe(409);
+      expect(await roster()).toHaveLength(4);
+      const confirmed = await call(
+        "/api/admin/teams/generate",
+        { count: 3, confirm: "DELETE" },
+        adminToken,
+      );
+      expect(confirmed.response.status).toBe(200);
+      expect(confirmed.data.participants).toHaveLength(3);
+      const [left] =
+        await sqlClient`select count(*)::int as n from user_answers where user_id = ${team4.id}`;
+      expect(left.n).toBe(0);
+      // Single-team delete: organizer only.
+      const team3 = confirmed.data.participants[2];
+      expect(
+        (
+          await call(
+            `/api/admin/participants/${team3.id}`,
+            undefined,
+            playerToken,
+            "DELETE",
+          )
+        ).response.status,
+      ).toBe(403);
+      const deleted = await call(
+        `/api/admin/participants/${team3.id}`,
+        undefined,
+        adminToken,
+        "DELETE",
+      );
+      expect(deleted.response.status).toBe(200);
+      expect(deleted.data.participants.map((p: any) => p.teamNumber)).toEqual([
+        1, 2,
+      ]);
+      // Restore the roster for later suites; 1 and 2 keep their codes.
+      const restored = await call(
+        "/api/admin/teams/generate",
+        { count: 4 },
+        adminToken,
+      );
+      expect(restored.data.participants).toHaveLength(4);
+      for (const n of [1, 2])
+        expect(restored.data.participants[n - 1].accessCode).toBe(codes[n]);
+    });
   },
 );

@@ -18,6 +18,7 @@ import {
   KeyRound,
   MessageSquareText,
   ListChecks,
+  Trash2,
 } from "lucide-react";
 import { api, type Ranking, type Phase, type AdminTeam } from "../../api";
 import { useUser } from "../../hooks";
@@ -596,20 +597,42 @@ function downloadCodes(teams: AdminTeam[]) {
   a.click();
   URL.revokeObjectURL(url);
 }
+const hasProgress = (p: AdminTeam) => p.answered > 0 || p.finalistRank !== null;
 function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
   const t = useText();
   const cache = useQueryClient();
-  const [count, setCount] = useState(150);
+  // null = follow the real roster size; a number = organizer is editing it.
+  const [draft, setDraft] = useState<number | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [shrinkTo, setShrinkTo] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState<AdminTeam | null>(null);
   const participants = useQuery({
     queryKey: ["participants"],
     queryFn: api.participants,
   });
+  const list = participants.data?.participants ?? [];
+  const progressed = (p: AdminTeam) =>
+    hasProgress(p) || (rankings.find((r) => r.id === p.id)?.answered ?? 0) > 0;
+  const count = draft ?? (list.length || 150);
+  const applyRoster = (data: { participants: AdminTeam[] }) => {
+    cache.setQueryData(["participants"], data);
+    cache.invalidateQueries({ queryKey: ["overview"] });
+    cache.invalidateQueries({ queryKey: ["leaderboard"] });
+  };
   const generate = useMutation({
     mutationFn: api.generateTeams,
     onSuccess: (data) => {
-      cache.setQueryData(["participants"], data);
-      cache.invalidateQueries({ queryKey: ["overview"] });
+      applyRoster(data);
+      setDraft(null);
+      setShrinkTo(null);
+    },
+  });
+  const remove = useMutation({
+    mutationFn: api.deleteTeam,
+    onSuccess: (data, { id }) => {
+      applyRoster(data);
+      if (open === id) setOpen(null);
+      setDeleting(null);
     },
   });
   const target = useMutation({
@@ -617,7 +640,9 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
       api.objective(id, objectiveId),
     onSuccess: () => cache.invalidateQueries({ queryKey: ["participants"] }),
   });
-  const list = participants.data?.participants ?? [];
+  const removed =
+    shrinkTo === null ? [] : list.filter((p) => p.teamNumber > shrinkTo);
+  const removedAnswered = removed.filter(progressed);
   return (
     <section className="assignments">
       <div className="teams-toolbar">
@@ -625,8 +650,8 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
           <h2>{t("ทีมและรหัสเข้าเกม", "Teams and access codes")}</h2>
           <p>
             {t(
-              "สร้างทีม 1 ถึง N พร้อมรหัสสุ่ม แจกรหัสให้แต่ละทีม target วนตามหมายเลขทีม (Growth → Premium → Cost → Customer) เปลี่ยนได้ก่อนทีมเริ่มตอบเท่านั้น",
-              "Create teams 1 to N with random codes and hand each team its code. Targets cycle by team number (Growth → Premium → Cost → Customer) and can change only before a team’s first answer.",
+              "ตั้งจำนวนทีม N เพื่อให้มีทีม 1 ถึง N พร้อมรหัสสุ่ม ลดจำนวนจะลบทีมที่เลขเกิน N ทีมเดิมเก็บรหัสไว้ target วนตามหมายเลขทีม (Growth → Premium → Cost → Customer) เปลี่ยนได้ก่อนทีมเริ่มตอบเท่านั้น",
+              "Set N to keep teams 1 to N with random codes. Lowering N deletes teams numbered above it; existing teams keep their codes. Targets cycle by team number (Growth → Premium → Cost → Customer) and can change only before a team’s first answer.",
             )}
           </p>
         </div>
@@ -634,7 +659,8 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
           className="generate-form"
           onSubmit={(e) => {
             e.preventDefault();
-            generate.mutate(count);
+            if (list.some((p) => p.teamNumber > count)) setShrinkTo(count);
+            else generate.mutate({ count });
           }}
         >
           <label>
@@ -644,17 +670,22 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
               min={1}
               max={300}
               value={count}
-              onChange={(e) => setCount(Number(e.target.value))}
+              onChange={(e) => setDraft(Number(e.target.value))}
             />
           </label>
           <button
             className="button small primary"
-            disabled={generate.isPending || count < 1 || count > 300}
+            disabled={
+              generate.isPending ||
+              !Number.isInteger(count) ||
+              count < 1 ||
+              count > 300
+            }
           >
             <Users size={14} />
             {generate.isPending
-              ? t("กำลังสร้าง…", "Creating…")
-              : t("สร้าง/เติมทีม", "Create teams")}
+              ? t("กำลังบันทึก…", "Saving…")
+              : t("ตั้งจำนวนทีม", "Set team count")}
           </button>
           <button
             type="button"
@@ -667,6 +698,58 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
           </button>
         </form>
       </div>
+      <ConfirmDialog
+        open={shrinkTo !== null}
+        title={t(
+          `ลดเหลือ ${shrinkTo ?? 0} ทีม?`,
+          `Reduce to ${shrinkTo ?? 0} teams?`,
+        )}
+        body={t(
+          `ลบ ${removed.length} ทีม (TEAM ${String((shrinkTo ?? 0) + 1).padStart(3, "0")} ขึ้นไป) พร้อมรหัสเข้าเกม${removedAnswered.length ? ` และคำตอบของ ${removedAnswered.length} ทีมที่เริ่มเล่นแล้ว` : ""} ย้อนกลับไม่ได้`,
+          `Deletes ${removed.length} teams (TEAM ${String((shrinkTo ?? 0) + 1).padStart(3, "0")} and above) and their codes${removedAnswered.length ? `, including answers from ${removedAnswered.length} teams that already played` : ""}. This cannot be undone.`,
+        )}
+        typed={removedAnswered.length ? "DELETE" : undefined}
+        confirmLabel={t("ลบทีม", "Delete teams")}
+        pending={generate.isPending}
+        error={generate.error}
+        onConfirm={() =>
+          shrinkTo !== null &&
+          generate.mutate({
+            count: shrinkTo,
+            confirm: removedAnswered.length ? "DELETE" : undefined,
+          })
+        }
+        onClose={() => {
+          setShrinkTo(null);
+          generate.reset();
+        }}
+      />
+      <ConfirmDialog
+        open={!!deleting}
+        title={t(
+          `ลบ ${deleting?.fullName ?? ""}?`,
+          `Delete ${deleting?.fullName ?? ""}?`,
+        )}
+        body={t(
+          `ลบทีมนี้และรหัสเข้าเกม${deleting && progressed(deleting) ? " พร้อมคำตอบและเหตุผลทั้งหมดของทีม" : ""} ตั้งจำนวนทีมอีกครั้งจะสร้างหมายเลขนี้ใหม่ด้วยรหัสใหม่ ย้อนกลับไม่ได้`,
+          `Deletes this team and its code${deleting && progressed(deleting) ? ", plus all its answers and reasons" : ""}. Setting the team count again recreates this number with a new code. This cannot be undone.`,
+        )}
+        typed={deleting && progressed(deleting) ? "DELETE" : undefined}
+        confirmLabel={t("ลบทีมนี้", "Delete this team")}
+        pending={remove.isPending}
+        error={remove.error}
+        onConfirm={() =>
+          deleting &&
+          remove.mutate({
+            id: deleting.id,
+            confirm: progressed(deleting) ? "DELETE" : undefined,
+          })
+        }
+        onClose={() => {
+          setDeleting(null);
+          remove.reset();
+        }}
+      />
       {generate.error && <ErrorState error={generate.error} />}
       {participants.isPending ? (
         <Loading />
@@ -699,14 +782,11 @@ function TeamsPanel({ rankings }: { rankings: Ranking[] }) {
                   team={p}
                   expanded={open === p.id}
                   onToggle={() => setOpen(open === p.id ? null : p.id)}
-                  locked={
-                    target.isPending ||
-                    p.answered > 0 ||
-                    (rankings.find((r) => r.id === p.id)?.answered ?? 0) > 0
-                  }
+                  locked={target.isPending || progressed(p)}
                   onTarget={(objectiveId) =>
                     target.mutate({ id: p.id, objectiveId })
                   }
+                  onDelete={() => setDeleting(p)}
                 />
               ))}
             </tbody>
@@ -723,12 +803,14 @@ function TeamRow({
   onToggle,
   locked,
   onTarget,
+  onDelete,
 }: {
   team: AdminTeam;
   expanded: boolean;
   onToggle: () => void;
   locked: boolean;
   onTarget: (o: Objective) => void;
+  onDelete: () => void;
 }) {
   const t = useText();
   return (
@@ -774,6 +856,14 @@ function TeamRow({
           >
             <MessageSquareText size={14} />
             {expanded ? t("ซ่อน", "Hide") : t("เหตุผล", "Reasons")}
+          </button>
+          <button
+            className="icon-text danger"
+            aria-label={`${t("ลบ", "Delete")} ${p.fullName}`}
+            onClick={onDelete}
+          >
+            <Trash2 size={14} />
+            {t("ลบ", "Delete")}
           </button>
         </td>
       </tr>
